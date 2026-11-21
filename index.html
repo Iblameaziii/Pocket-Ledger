@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0e1014">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Ledger">
+<title>Pocket Ledger</title>
+<link rel="manifest" href="./manifest.json">
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20512%20512'%3E%3Crect%20width='512'%20height='512'%20rx='112'%20fill='%23161a21'/%3E%3Crect%20x='120'%20y='150'%20width='272'%20height='40'%20rx='20'%20fill='%232fbf71'/%3E%3Crect%20x='120'%20y='236'%20width='200'%20height='40'%20rx='20'%20fill='%235b8cff'/%3E%3Crect%20x='120'%20y='322'%20width='140'%20height='40'%20rx='20'%20fill='%232fbf71'%20opacity='.55'/%3E%3C/svg%3E">
+<style>
+:root{
+  --bg:#0e1014; --panel:#161a21; --panel2:#1c222b; --line:#272e3a;
+  --txt:#e8edf5; --muted:#8a95a5;
+  --in:#2fbf71; --out:#f0575e; --accent:#5b8cff;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0}
+body{
+  background:var(--bg); color:var(--txt);
+  font:16px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  padding:18px 14px calc(70px + env(safe-area-inset-bottom));
+  padding-top:calc(18px + env(safe-area-inset-top));
+  max-width:560px; margin:0 auto;
+  -webkit-text-size-adjust:100%;
+}
+.lbl{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;font-weight:600}
+
+/* ---- top / balances ---- */
+.top{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:16px;margin-bottom:14px}
+.big{font-size:40px;font-weight:800;letter-spacing:-1.5px;line-height:1.1;margin-top:2px;font-variant-numeric:tabular-nums}
+.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:14px}
+.card{background:var(--panel2);border-radius:11px;padding:10px 8px;text-align:center;overflow:hidden}
+.card .val{font-size:15px;font-weight:700;margin-top:3px;font-variant-numeric:tabular-nums;overflow:hidden;text-overflow:ellipsis}
+.neg{color:var(--out)!important}
+
+/* ---- day nav ---- */
+.daybar{display:flex;gap:8px;align-items:center;margin-bottom:14px}
+.daybar .nav{
+  width:42px;height:42px;flex:none;border:1px solid var(--line);background:var(--panel);
+  color:var(--txt);border-radius:11px;font-size:20px;line-height:1;cursor:pointer
+}
+.daybar .nav:active{background:var(--panel2)}
+#day{
+  flex:1;min-width:0;background:var(--panel);border:1px solid var(--line);color:var(--txt);
+  border-radius:11px;padding:10px 12px;font:inherit;font-size:15px;font-weight:600;outline:none;
+  -webkit-appearance:none;appearance:none
+}
+
+/* ---- panel ---- */
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:14px;margin-bottom:14px}
+
+/* ---- bars ---- */
+.row{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.pill{
+  width:56px;flex:none;text-align:center;font-size:11px;font-weight:700;
+  letter-spacing:.05em;text-transform:uppercase;padding:4px 0;border-radius:6px
+}
+.pill.in{background:rgba(47,191,113,.15);color:#5fe0a0}
+.pill.out{background:rgba(240,87,94,.15);color:#ff8a8f}
+.track{flex:1;height:11px;background:var(--panel2);border-radius:99px;overflow:hidden;min-width:0}
+.fill{height:100%;width:0;border-radius:99px;transition:width .35s cubic-bezier(.4,0,.2,1)}
+.fill.in{background:var(--in)}
+.fill.out{background:var(--out)}
+.num{width:78px;flex:none;text-align:right;font-size:13px;font-weight:700;font-variant-numeric:tabular-nums;overflow:hidden;text-overflow:ellipsis}
+.netrow{
+  display:flex;justify-content:space-between;align-items:center;
+  border-top:1px solid var(--line);margin-top:12px;padding-top:11px;
+  font-size:14px;color:var(--muted);font-weight:600
+}
+.netrow strong{font-size:17px;font-variant-numeric:tabular-nums}
+
+/* ---- form ---- */
+.seg{display:flex;background:var(--panel2);border-radius:12px;padding:4px;gap:4px;margin-bottom:10px}
+.seg button{
+  flex:1;border:0;background:transparent;color:var(--muted);padding:10px 4px;border-radius:9px;
+  font:inherit;font-size:14px;font-weight:600;cursor:pointer;transition:.15s
+}
+.seg button.active{background:var(--panel);color:var(--txt);box-shadow:0 1px 4px rgba(0,0,0,.45)}
+#typeSeg button.active[data-type="in"]{background:rgba(47,191,113,.18);color:#5fe0a0;box-shadow:none}
+#typeSeg button.active[data-type="out"]{background:rgba(240,87,94,.18);color:#ff8a8f;box-shadow:none}
+#scopeSeg{width:170px;flex:none;padding:3px;margin:0}
+#scopeSeg button{font-size:13px;padding:7px 4px}
+
+.amountrow{display:flex;align-items:center;background:var(--panel2);border-radius:12px;padding:0 14px;margin-bottom:10px}
+.amountrow .cur{color:var(--muted);font-size:20px;font-weight:700}
+.amountrow input{
+  flex:1;min-width:0;border:0;background:transparent;color:var(--txt);
+  font:inherit;font-size:27px;font-weight:700;padding:11px 8px;outline:none;
+  font-variant-numeric:tabular-nums
+}
+.amountrow input::placeholder{color:#49515e}
+input[type=number]::-webkit-outer-spin-button,
+input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+input[type=number]{-moz-appearance:textfield}
+#note{
+  width:100%;border:1px solid var(--line);background:var(--panel2);color:var(--txt);
+  border-radius:12px;padding:12px 14px;font:inherit;font-size:16px;outline:none;margin-bottom:10px
+}
+#note:focus{border-color:#3a4557}
+.primary{
+  width:100%;border:0;border-radius:12px;padding:14px;font:inherit;font-size:16px;font-weight:700;
+  color:#fff;cursor:pointer;background:var(--in);transition:.15s
+}
+.primary.out{background:var(--out)}
+.primary:active{transform:scale(.985);filter:brightness(1.1)}
+.hint{text-align:center;font-size:12px;color:var(--muted);margin-top:9px}
+
+/* ---- list ---- */
+.listhead{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:20px 2px 10px}
+.listhead h2{margin:0;font-size:15px;font-weight:700;letter-spacing:.02em}
+.tx{
+  display:flex;align-items:center;gap:11px;padding:11px 12px;
+  background:var(--panel);border:1px solid var(--line);border-radius:13px;margin-bottom:8px
+}
+.dot{width:9px;height:9px;border-radius:50%;flex:none}
+.dot.in{background:var(--in)}
+.dot.out{background:var(--out)}
+.txmain{flex:1;min-width:0}
+.txnote{font-size:15px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.txmeta{font-size:12px;color:var(--muted);margin-top:1px}
+.txamt{font-size:15px;font-weight:700;font-variant-numeric:tabular-nums;flex:none}
+.txamt.in{color:#5fe0a0}
+.txamt.out{color:#ff8a8f}
+.del{
+  width:30px;height:30px;flex:none;border:0;border-radius:50%;background:transparent;
+  color:#5c6675;font-size:19px;line-height:1;cursor:pointer;padding:0
+}
+.del:active{background:rgba(240,87,94,.15);color:var(--out)}
+.empty{text-align:center;color:var(--muted);font-size:14px;padding:26px 10px}
+
+/* ---- footer ---- */
+.footer{
+  margin-top:26px;padding-top:16px;border-top:1px solid var(--line);
+  display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:center;
+  font-size:13px;color:var(--muted)
+}
+.footer input#cur{
+  width:46px;background:var(--panel2);border:1px solid var(--line);color:var(--txt);
+  border-radius:8px;padding:6px 8px;font:inherit;font-size:13px;text-align:center;outline:none
+}
+.footer button{
+  background:var(--panel);border:1px solid var(--line);color:var(--muted);
+  border-radius:9px;padding:7px 12px;font:inherit;font-size:13px;font-weight:600;cursor:pointer
+}
+.footer button:active{background:var(--panel2);color:var(--txt)}
+.badge{
+  display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;
+  color:var(--muted);background:var(--panel);border:1px solid var(--line);
+  border-radius:99px;padding:5px 11px
+}
+.badge::before{content:"";width:7px;height:7px;border-radius:50%;background:#5c6675}
+.badge.ok{color:#5fe0a0}
+.badge.ok::before{background:var(--in)}
+</style>
+</head>
+<body>
+
+<div class="top">
+  <div class="lbl">Total in pocket</div>
+  <div class="big" id="total">$0.00</div>
+  <div class="cards">
+    <div class="card"><div class="lbl">Account</div><div class="val" id="b-account">$0.00</div></div>
+    <div class="card"><div class="lbl">Cash</div><div class="val" id="b-cash">$0.00</div></div>
+    <div class="card"><div class="lbl">Coins</div><div class="val" id="b-coins">$0.00</div></div>
+  </div>
+</div>
+
+<div class="daybar">
+  <button class="nav" id="prev" aria-label="Previous day">‹</button>
+  <input type="date" id="day">
+  <button class="nav" id="next" aria-label="Next day">›</button>
+</div>
+
+<div class="panel">
+  <div class="row">
+    <span class="pill in">In</span>
+    <div class="track"><div class="fill in" id="fillIn"></div></div>
+    <span class="num" id="numIn">$0.00</span>
+  </div>
+  <div class="row">
+    <span class="pill out">Out</span>
+    <div class="track"><div class="fill out" id="fillOut"></div></div>
+    <span class="num" id="numOut">$0.00</span>
+  </div>
+  <div class="netrow"><span>Net for the day</span><strong id="net">$0.00</strong></div>
+</div>
+
+<div class="panel">
+  <div class="seg" id="typeSeg">
+    <button data-type="in" class="active">Money in</button>
+    <button data-type="out">Money out</button>
+  </div>
+  <div class="seg" id="methodSeg">
+    <button data-method="account" class="active">Account</button>
+    <button data-method="cash">Cash</button>
+    <button data-method="coins">Coins</button>
+  </div>
+  <div class="amountrow">
+    <span class="cur" id="curSym">$</span>
+    <input id="amount" type="number" inputmode="decimal" step="0.01" min="0" placeholder="0.00">
+  </div>
+  <input id="note" type="text" placeholder="Note (lunch, salary, bus fare…)" maxlength="60">
+  <button id="addBtn" class="primary">Add money in</button>
+  <div class="hint" id="addHint"></div>
+</div>
+
+<div class="listhead">
+  <h2>Transactions</h2>
+  <div class="seg" id="scopeSeg">
+    <button data-scope="day" class="active">This day</button>
+    <button data-scope="all">All</button>
+  </div>
+</div>
+<div id="list"></div>
+
+<div class="footer">
+  <span class="badge" id="badge">Checking…</span>
+  <label>Currency <input id="cur" type="text" maxlength="4" value="$"></label>
+  <button id="exportBtn">Export backup</button>
+  <button id="importBtn">Import</button>
+  <input type="file" id="fileInput" accept="application/json,.json" hidden>
+</div>
+
+<noscript>
+  <p style="text-align:center;color:#8a95a5">This app needs JavaScript enabled.</p>
+</noscript>
+
+<script>
+(function(){
+  'use strict';
+
+  /* ============ state ============ */
+  var KEY = 'pocketledger.v1';
+  var state = { txs: [], cur: '$' };
+
+  function load(){
+    try{
+      var raw = localStorage.getItem(KEY);
+      if(raw){
+        var d = JSON.parse(raw);
+        if(d && Array.isArray(d.txs)){
+          state.txs = d.txs;
+          state.cur = d.cur || '$';
+        }
+      }
+    }catch(e){ /* corrupted storage -> start fresh */ }
+  }
+  function save(){
+    try{ localStorage.setItem(KEY, JSON.stringify(state)); }
+    catch(e){ alert('Could not save — storage may be full or blocked.'); }
+  }
+  load();
+
+  /* ============ helpers ============ */
+  function toDateStr(d){
+    return d.getFullYear() + '-' +
+      String(d.getMonth()+1).padStart(2,'0') + '-' +
+      String(d.getDate()).padStart(2,'0');
+  }
+  function todayStr(){ return toDateStr(new Date()); }
+
+  function fmt(cents){
+    var neg = cents < 0;
+    var v = Math.abs(cents) / 100;
+    return (neg ? '-' : '') + state.cur + v.toFixed(2);
+  }
+  function parseAmt(v){
+    var n = parseFloat(String(v).replace(',', '.'));
+    if(!isFinite(n) || n <= 0) return null;
+    return Math.round(n * 100);
+  }
+  function esc(s){
+    return String(s).replace(/[&<>"']/g, function(c){
+      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+    });
+  }
+  function dayLabel(ds){
+    if(ds === todayStr()) return 'Today';
+    var y = new Date(); y.setDate(y.getDate() - 1);
+    if(ds === toDateStr(y)) return 'Yesterday';
+    var p = ds.split('-').map(Number);
+    return new Date(p[0], p[1]-1, p[2])
+      .toLocaleDateString(undefined, {weekday:'short', day:'numeric', month:'short'});
+  }
+
+  /* ============ elements ============ */
+  var $ = function(id){ return document.getElementById(id); };
+  var totalEl = $('total'),
+      bAcc = $('b-account'), bCash = $('b-cash'), bCoins = $('b-coins'),
+      dayEl = $('day'),
+      fillIn = $('fillIn'), fillOut = $('fillOut'),
+      numIn = $('numIn'), numOut = $('numOut'), netEl = $('net'),
+      amountEl = $('amount'), noteEl = $('note'),
+      addBtn = $('addBtn'), addHint = $('addHint'),
+      listEl = $('list'), curInput = $('cur'), curSym = $('curSym'),
+      typeSeg = $('typeSeg'), methodSeg = $('methodSeg'), scopeSeg = $('scopeSeg'),
+      badge = $('badge');
+
+  var curType = 'in';
+  var curMethod = 'account';
+  var scope = 'day';
+
+  dayEl.value = todayStr();
+
+  /* ============ computation ============ */
+  function balances(){
+    var b = { account:0, cash:0, coins:0 };
+    for(var i=0;i<state.txs.length;i++){
+      var t = state.txs[i];
+      if(!(t.method in b)) continue;
+      b[t.method] += (t.type === 'in' ? 1 : -1) * t.cents;
+    }
+    return b;
+  }
+
+  /* ============ render ============ */
+  function render(){
+    var b = balances();
+    var total = b.account + b.cash + b.coins;
+
+    totalEl.textContent = fmt(total);
+    totalEl.classList.toggle('neg', total < 0);
+
+    [[bAcc,b.account],[bCash,b.cash],[bCoins,b.coins]].forEach(function(pair){
+      pair[0].textContent = fmt(pair[1]);
+      pair[0].classList.toggle('neg', pair[1] < 0);
+    });
+
+    var sIn = 0, sOut = 0, d = dayEl.value;
+    for(var i=0;i<state.txs.length;i++){
+      var t = state.txs[i];
+      if(t.date !== d) continue;
+      if(t.type === 'in') sIn += t.cents; else sOut += t.cents;
+    }
+
+    var max = Math.max(sIn, sOut, 1);
+    fillIn.style.width  = (sIn  / max * 100) + '%';
+    fillOut.style.width = (sOut / max * 100) + '%';
+    numIn.textContent  = fmt(sIn);
+    numOut.textContent = fmt(sOut);
+
+    var net = sIn - sOut;
+    netEl.textContent = (net > 0 ? '+' : '') + fmt(net);
+    netEl.classList.toggle('neg', net < 0);
+
+    curSym.textContent = state.cur;
+    addBtn.textContent = curType === 'in' ? 'Add money in' : 'Add money out';
+    addBtn.classList.toggle('out', curType === 'out');
+    addHint.textContent = 'Adds to ' + dayLabel(dayEl.value);
+
+    renderList();
+  }
+
+  function renderList(){
+    var items = state.txs.filter(function(t){
+      return scope === 'all' || t.date === dayEl.value;
+    });
+    items.sort(function(a,b){
+      if(a.date !== b.date) return a.date < b.date ? 1 : -1;
+      return (b.ts || 0) - (a.ts || 0);
+    });
+
+    if(!items.length){
+      listEl.innerHTML = '<div class="empty">Nothing recorded' +
+        (scope === 'day' ? ' for this day.' : ' yet.') + '</div>';
+      return;
+    }
+
+    var html = '';
+    for(var i=0;i<items.length;i++){
+      var t = items[i];
+      var isIn = t.type === 'in';
+      var meta = (t.method.charAt(0).toUpperCase() + t.method.slice(1));
+      if(scope === 'all') meta += ' · ' + dayLabel(t.date);
+      html += '<div class="tx">' +
+        '<span class="dot ' + (isIn?'in':'out') + '"></span>' +
+        '<div class="txmain">' +
+          '<div class="txnote">' + esc(t.note || (isIn ? 'Money in' : 'Money out')) + '</div>' +
+          '<div class="txmeta">' + meta + '</div>' +
+        '</div>' +
+        '<span class="txamt ' + (isIn?'in':'out') + '">' +
+          (isIn ? '+' : '−') + fmt(t.cents) +
+        '</span>' +
+        '<button class="del" data-id="' + t.id + '" aria-label="Delete">×</button>' +
+      '</div>';
+    }
+    listEl.innerHTML = html;
+  }
+
+  /* ============ interactions ============ */
+  typeSeg.addEventListener('click', function(e){
+    var btn = e.target.closest('button[data-type]');
+    if(!btn) return;
+    curType = btn.dataset.type;
+    Array.prototype.forEach.call(typeSeg.children, function(b){
+      b.classList.toggle('active', b === btn);
+    });
+    render();
+  });
+
+  methodSeg.addEventListener('click', function(e){
+    var btn = e.target.closest('button[data-method]');
+    if(!btn) return;
+    curMethod = btn.dataset.method;
+    Array.prototype.forEach.call(methodSeg.children, function(b){
+      b.classList.toggle('active', b === btn);
+    });
+  });
+
+  scopeSeg.addEventListener('click', function(e){
+    var btn = e.target.closest('button[data-scope]');
+    if(!btn) return;
+    scope = btn.dataset.scope;
+    Array.prototype.forEach.call(scopeSeg.children, function(b){
+      b.classList.toggle('active', b === btn);
+    });
+    renderList();
+  });
+
+  addBtn.addEventListener('click', function(){
+    var cents = parseAmt(amountEl.value);
+    if(cents === null){
+      amountEl.focus();
+      amountEl.parentElement.style.background = 'rgba(240,87,94,.18)';
+      setTimeout(function(){ amountEl.parentElement.style.background = ''; }, 400);
+      return;
+    }
+
+    state.txs.push({
+      id: Date.now().toString(36) + Math.random().toString(36).slice(2, 7),
+      type: curType,
+      method: curMethod,
+      cents: cents,
+      note: noteEl.value.trim(),
+      date: dayEl.value || todayStr(),
+      ts: Date.now()
+    });
+    save();
+
+    amountEl.value = '';
+    noteEl.value = '';
+    render();
+    amountEl.focus();
+  });
+
+  [amountEl, noteEl].forEach(function(el){
+    el.addEventListener('keydown', function(e){
+      if(e.key === 'Enter'){ e.preventDefault(); addBtn.click(); }
+    });
+  });
+
+  listEl.addEventListener('click', function(e){
+    var btn = e.target.closest('.del');
+    if(!btn) return;
+    var id = btn.dataset.id;
+    var tx = null;
+    for(var i=0;i<state.txs.length;i++){ if(state.txs[i].id === id){ tx = state.txs[i]; break; } }
+    if(!tx) return;
+    if(confirm('Delete this transaction?\n\n' +
+        (tx.type === 'in' ? '+' : '−') + fmt(tx.cents) +
+        (tx.note ? '  —  ' + tx.note : ''))){
+      state.txs = state.txs.filter(function(t){ return t.id !== id; });
+      save();
+      render();
+    }
+  });
+
+  dayEl.addEventListener('change', function(){
+    if(!dayEl.value) dayEl.value = todayStr();
+    render();
+  });
+
+  function shiftDay(n){
+    var p = dayEl.value.split('-').map(Number);
+    var dt = new Date(p[0], p[1]-1, p[2] + n);
+    dayEl.value = toDateStr(dt);
+    render();
+  }
+  $('prev').addEventListener('click', function(){ shiftDay(-1); });
+  $('next').addEventListener('click', function(){ shiftDay(1); });
+
+  curInput.addEventListener('change', function(){
+    state.cur = curInput.value.trim() || '$';
+    curInput.value = state.cur;
+    save();
+    render();
+  });
+
+  /* ============ backup ============ */
+  $('exportBtn').addEventListener('click', function(){
+    var blob = new Blob([JSON.stringify(state, null, 2)], {type:'application/json'});
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = 'pocket-ledger-' + todayStr() + '.json';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(function(){ URL.revokeObjectURL(url); }, 1000);
+  });
+
+  $('importBtn').addEventListener('click', function(){ $('fileInput').click(); });
+
+  $('fileInput').addEventListener('change', function(e){
+    var f = e.target.files && e.target.files[0];
+    if(!f) return;
+    var r = new FileReader();
+    r.onload = function(){
+      try{
+        var data = JSON.parse(r.result);
+        if(!data || !Array.isArray(data.txs)) throw new Error('bad');
+        if(!confirm('Replace ALL current data with this backup?')) return;
+        state.txs = data.txs;
+        state.cur = data.cur || '$';
+        curInput.value = state.cur;
+        save();
+        render();
+      }catch(err){
+        alert('That file could not be read as a Pocket Ledger backup.');
+      }
+    };
+    r.readAsText(f);
+    e.target.value = '';
+  });
+
+  /* ============ service worker ============ */
+  function setBadge(txt, ok){
+    badge.textContent = txt;
+    badge.classList.toggle('ok', !!ok);
+  }
+
+  if('serviceWorker' in navigator && location.protocol.indexOf('http') === 0){
+    var hadController = !!navigator.serviceWorker.controller;
+    var reloaded = false;
+
+    navigator.serviceWorker.addEventListener('controllerchange', function(){
+      if(!hadController || reloaded) return;
+      reloaded = true;
+      location.reload();
+    });
+
+    window.addEventListener('load', function(){
+      navigator.serviceWorker.register('./sw.js', {scope:'./'})
+        .then(function(reg){
+          setBadge('Offline ready', true);
+          return reg;
+        })
+        .catch(function(){
+          setBadge('Online only');
+        });
+    });
+
+    window.addEventListener('offline', function(){ setBadge('Offline', true); });
+    window.addEventListener('online', function(){
+      if(navigator.serviceWorker.controller) setBadge('Offline ready', true);
+    });
+  } else {
+    setBadge('Online only');
+  }
+
+  /* ============ go ============ */
+  curInput.value = state.cur;
+  render();
+})();
+</script>
+</body>
+</html>
