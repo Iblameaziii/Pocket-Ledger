@@ -1,0 +1,25 @@
+{
+  "name": "Pocket Ledger",
+  "short_name": "Ledger",
+  "description": "Offline transaction tracker with account, cash and coin balances.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0e1014",
+  "theme_color": "#0e1014",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20512%20512'%3E%3Crect%20width='512'%20height='512'%20rx='112'%20fill='%23161a21'/%3E%3Crect%20x='120'%20y='150'%20width='272'%20height='40'%20rx='20'%20fill='%232fbf71'/%3E%3Crect%20x='120'%20y='236'%20width='200'%20height='40'%20rx='20'%20fill='%235b8cff'/%3E%3Crect%20x='120'%20y='322'%20width='140'%20height='40'%20rx='20'%20fill='%232fbf71'%20opacity='.55'/%3E%3C/svg%3E",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20512%20512'%3E%3Crect%20width='512'%20height='512'%20fill='%23161a21'/%3E%3Crect%20x='120'%20y='186'%20width='272'%20height='40'%20rx='20'%20fill='%232fbf71'/%3E%3Crect%20x='120'%20y='272'%20width='200'%20height='40'%20rx='20'%20fill='%235b8cff'/%3E%3C/svg%3E",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ]
+}
