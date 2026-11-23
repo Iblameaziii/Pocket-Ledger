@@ -820,15 +820,19 @@ input[type=number]{-moz-appearance:textfield}
     
     fetch(`https://api.github.com/gists/${creds.gid}`, {
       method: 'PATCH',
-      headers: { 'Authorization': `token ${creds.tok}`, 'Accept': 'application/vnd.github.v3+json' },
+      headers: {
+        'Authorization': `token ${creds.tok}`,
+        'Accept': 'application/vnd.github.v3+json',
+        'Content-Type': 'application/json'
+      },
       body: JSON.stringify(payload)
     }).then(function(r){ 
-      if(!r.ok) throw new Error('Auth failed'); 
+      if(!r.ok) throw new Error('HTTP ' + r.status); 
       headerStatus.textContent = "Synced";
-      if(!isSilent) syncHint.textContent = "Uploaded successfully! ✅"; 
-    }).catch(function(){ 
+      if(!isSilent) syncHint.textContent = "Uploaded " + state.txs.length + " tx(s)! ✅"; 
+    }).catch(function(err){ 
       headerStatus.textContent = "Sync Error";
-      if(!isSilent) syncHint.textContent = "Upload failed. Check token/gist. ❌"; 
+      if(!isSilent) syncHint.textContent = "Upload failed (" + (err && err.message ? err.message : 'network') + "). ❌"; 
     });
   }
 
@@ -843,41 +847,50 @@ input[type=number]{-moz-appearance:textfield}
     if(!isSilent) syncHint.textContent = "Loading...";
     
     fetch(`https://api.github.com/gists/${creds.gid}`, {
-      headers: { 'Authorization': `token ${creds.tok}`, 'Accept': 'application/vnd.github.v3+json' }
+      headers: {
+        'Authorization': `token ${creds.tok}`,
+        'Accept': 'application/vnd.github.v3+json'
+      }
     }).then(function(r){ 
-      if(!r.ok) throw new Error('Fetch failed');
+      if(!r.ok) throw new Error('HTTP ' + r.status);
       return r.json(); 
     }).then(function(data){
       if(data.files && data.files['ledger.json']){
         var remoteState = JSON.parse(data.files['ledger.json'].content);
         if(remoteState && Array.isArray(remoteState.txs)){
           if(isSilent){
-            if((remoteState.updatedAt || 0) > (state.updatedAt || 0) || state.txs.length === 0){
-              state = remoteState;
-              curInput.value = state.cur || '$';
-              save(true);
+            if((remoteState.updatedAt || 0) > (state.updatedAt || 0) || (state.txs.length === 0 && remoteState.txs.length > 0)){
+              state.txs = remoteState.txs;
+              state.cur = remoteState.cur || state.cur || '$';
+              state.updatedAt = remoteState.updatedAt || Date.now();
+              localStorage.setItem(KEY, JSON.stringify(state));
+              curInput.value = state.cur;
               render();
             }
             headerStatus.textContent = "Synced";
-          } else if(confirm("Overwrite local data with cloud data?")){
-            state = remoteState;
-            curInput.value = state.cur || '$';
-            save(true);
-            render();
-            headerStatus.textContent = "Synced";
-            syncHint.textContent = "Loaded successfully! ✅";
           } else {
-            headerStatus.textContent = "Local";
-            syncHint.textContent = "Cancelled.";
+            if(confirm("Overwrite local data (" + state.txs.length + " tx) with cloud data (" + remoteState.txs.length + " tx)?")){
+              state.txs = remoteState.txs;
+              state.cur = remoteState.cur || state.cur || '$';
+              state.updatedAt = remoteState.updatedAt || Date.now();
+              localStorage.setItem(KEY, JSON.stringify(state));
+              curInput.value = state.cur;
+              render();
+              headerStatus.textContent = "Synced";
+              syncHint.textContent = "Loaded " + state.txs.length + " tx(s)! ✅";
+            } else {
+              headerStatus.textContent = "Local";
+              syncHint.textContent = "Cancelled.";
+            }
           }
         }
       } else {
         headerStatus.textContent = "Local";
         if(!isSilent) syncHint.textContent = "Could not find ledger.json in Gist.";
       }
-    }).catch(function(){ 
+    }).catch(function(err){ 
       headerStatus.textContent = "Sync Error";
-      if(!isSilent) syncHint.textContent = "Load failed. Check token/gist. ❌"; 
+      if(!isSilent) syncHint.textContent = "Load failed (" + (err && err.message ? err.message : 'network') + "). ❌"; 
     });
   }
 
