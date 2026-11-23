@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-<meta name="theme-color" content="#0e1014">
+<meta name="theme-color" content="#121212">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -12,9 +12,14 @@
 <link rel="manifest" href="./manifest.json">
 <style>
 :root{
-  --bg:#0e1014; --panel:#161a21; --panel2:#1c222b; --line:#272e3a;
-  --txt:#e8edf5; --muted:#8a95a5;
-  --in:#2fbf71; --out:#f0575e; --accent:#5b8cff; --transfer:#c88cff;
+  --bg:#121212; 
+  --panel:#1e1e1e; 
+  --panel2:#2a2a2a; 
+  --line:#404040;
+  --txt:#ffffff; 
+  --muted:#999999;
+  --in:#ffffff; 
+  --out:#888888;
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;padding:0;touch-action:manipulation;}
@@ -34,8 +39,8 @@ button, input, select { touch-action: manipulation; }
 .cards{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:14px}
 .card{background:var(--panel2);border-radius:10px;padding:10px 4px;text-align:center;overflow:hidden}
 .card .lbl{font-size:10px}
-.card .val{font-size:13px;font-weight:700;margin-top:3px;font-variant-numeric:tabular-nums;overflow:hidden;text-overflow:ellipsis}
-.neg{color:var(--out)!important}
+.card .val{font-size:13px;font-weight:700;margin-top:3px;font-variant-numeric:tabular-nums;overflow:hidden;text-overflow:ellipsis;color:var(--txt)}
+.neg{color:var(--muted)!important; text-decoration: line-through;}
 
 .daybar{display:flex;gap:6px;align-items:center;margin-bottom:10px}
 .daybar .nav{width:36px;height:42px;flex:none;border:1px solid var(--line);background:var(--panel);color:var(--txt);border-radius:11px;font-size:20px;line-height:1;cursor:pointer}
@@ -53,54 +58,63 @@ button, input, select { touch-action: manipulation; }
 
 .row{display:flex;align-items:center;gap:10px;margin-bottom:10px}
 .pill{width:56px;flex:none;text-align:center;font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding:4px 0;border-radius:6px}
-.pill.in{background:rgba(47,191,113,.15);color:#5fe0a0}
-.pill.out{background:rgba(240,87,94,.15);color:#ff8a8f}
+.pill.in{background:var(--txt);color:var(--bg)}
+.pill.out{border:1px solid var(--txt);color:var(--txt)}
 .track{flex:1;height:11px;background:var(--panel2);border-radius:99px;overflow:hidden;min-width:0}
 .fill{height:100%;width:0;border-radius:99px;transition:width .35s cubic-bezier(.4,0,.2,1)}
-.fill.in{background:var(--in)}
+.fill.in{background:var(--txt)}
 .fill.out{background:var(--out)}
 .num{width:78px;flex:none;text-align:right;font-size:13px;font-weight:700;font-variant-numeric:tabular-nums;overflow:hidden;text-overflow:ellipsis}
 .netrow{display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--line);margin-top:12px;padding-top:11px;font-size:14px;color:var(--muted);font-weight:600}
-.netrow strong{font-size:17px;font-variant-numeric:tabular-nums}
+.netrow strong{font-size:17px;font-variant-numeric:tabular-nums;color:var(--txt)}
 
 .seg{display:flex;background:var(--panel2);border-radius:12px;padding:4px;gap:4px;margin-bottom:10px}
 .seg button{flex:1;border:0;background:transparent;color:var(--muted);padding:10px 4px;border-radius:9px;font:inherit;font-size:14px;font-weight:600;cursor:pointer;transition:.15s}
 .seg button.active{background:var(--panel);color:var(--txt);box-shadow:0 1px 4px rgba(0,0,0,.45)}
-#typeSeg button.active[data-type="in"]{background:rgba(47,191,113,.18);color:#5fe0a0;box-shadow:none}
-#typeSeg button.active[data-type="out"]{background:rgba(240,87,94,.18);color:#ff8a8f;box-shadow:none}
-#typeSeg button.active[data-type="transfer"]{background:rgba(200,140,255,.18);color:var(--transfer);box-shadow:none}
-select.method-select{width:100%;background:var(--panel2);border:0;color:var(--txt);border-radius:12px;padding:12px 14px;font:inherit;font-size:15px;font-weight:600;outline:none;margin-bottom:10px;-webkit-appearance:none;appearance:none;}
-.amountrow{display:flex;align-items:center;background:var(--panel2);border-radius:12px;padding:0 14px;margin-bottom:10px}
+#typeSeg button.active[data-type="in"]{background:var(--txt);color:var(--bg);box-shadow:none}
+#typeSeg button.active[data-type="out"]{background:var(--muted);color:var(--bg);box-shadow:none}
+#typeSeg button.active[data-type="transfer"]{background:var(--panel);border:1px solid var(--txt);color:var(--txt);box-shadow:none}
+
+select.method-select{width:100%;background:var(--panel2);border:1px solid var(--line);color:var(--txt);border-radius:12px;padding:12px 14px;font:inherit;font-size:15px;font-weight:600;outline:none;margin-bottom:10px;-webkit-appearance:none;appearance:none;}
+.amountrow{display:flex;align-items:center;background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:0 14px;margin-bottom:10px}
 .amountrow .cur{color:var(--muted);font-size:20px;font-weight:700}
 .amountrow input{flex:1;min-width:0;border:0;background:transparent;color:var(--txt);font:inherit;font-size:27px;font-weight:700;padding:11px 8px;outline:none;font-variant-numeric:tabular-nums}
-.amountrow input::placeholder{color:#49515e}
+.amountrow input::placeholder{color:#555}
 input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
 input[type=number]{-moz-appearance:textfield}
 #note{width:100%;border:1px solid var(--line);background:var(--panel2);color:var(--txt);border-radius:12px;padding:12px 14px;font:inherit;font-size:16px;outline:none;margin-bottom:10px}
-.primary{width:100%;border:0;border-radius:12px;padding:14px;font:inherit;font-size:16px;font-weight:700;color:#fff;cursor:pointer;background:var(--in);transition:.15s}
-.primary.out{background:var(--out)}
-.primary.transfer{background:var(--transfer); color:#0e1014}
+.primary{width:100%;border:1px solid var(--txt);border-radius:12px;padding:14px;font:inherit;font-size:16px;font-weight:700;cursor:pointer;transition:.15s}
+.primary[data-current="in"]{background:var(--txt);color:var(--bg)}
+.primary[data-current="out"]{background:transparent;color:var(--txt)}
+.primary[data-current="transfer"]{background:var(--panel2);color:var(--txt)}
 .hint{text-align:center;font-size:12px;color:var(--muted);margin-top:9px}
 
 .listhead{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:20px 2px 10px}
 .listhead h2{margin:0;font-size:15px;font-weight:700;letter-spacing:.02em}
 .tx{display:flex;align-items:center;gap:11px;padding:11px 12px;background:var(--panel);border:1px solid var(--line);border-radius:13px;margin-bottom:8px}
 .dot{width:9px;height:9px;border-radius:50%;flex:none}
-.dot.in{background:var(--in)}.dot.out{background:var(--out)}.dot.transfer{background:var(--transfer)}
+.dot.in{background:var(--txt)}
+.dot.out{border:2px solid var(--txt); background:transparent;}
+.dot.transfer{background:var(--muted)}
 .txmain{flex:1;min-width:0}
 .txnote{font-size:15px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .txmeta{font-size:12px;color:var(--muted);margin-top:1px}
 .txamt{font-size:15px;font-weight:700;font-variant-numeric:tabular-nums;flex:none}
-.txamt.in{color:#5fe0a0}.txamt.out{color:#ff8a8f}.txamt.transfer{color:var(--transfer)}
+.txamt.in{color:var(--txt)}
+.txamt.out{color:var(--muted)}
+.txamt.transfer{color:var(--txt); font-weight:600}
 .del{width:30px;height:30px;flex:none;border:0;border-radius:50%;background:transparent;color:#5c6675;font-size:19px;line-height:1;cursor:pointer;padding:0}
 .empty{text-align:center;color:var(--muted);font-size:14px;padding:26px 10px}
 
 .footer{margin-top:26px;padding-top:16px;border-top:1px solid var(--line);display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:center;font-size:13px;color:var(--muted)}
-.footer button{background:var(--panel);border:1px solid var(--line);color:var(--muted);border-radius:9px;padding:7px 12px;font:inherit;font-size:13px;font-weight:600;cursor:pointer}
-.footer button:active{background:var(--panel2);color:var(--txt)}
+.footer button{background:var(--panel);border:1px solid var(--line);color:var(--txt);border-radius:9px;padding:7px 12px;font:inherit;font-size:13px;font-weight:600;cursor:pointer}
+.footer button:active{background:var(--panel2)}
+.footer input#cur{width:46px;background:var(--panel2);border:1px solid var(--line);color:var(--txt);border-radius:8px;padding:6px 8px;font:inherit;font-size:13px;text-align:center;outline:none}
+
 .sync-panel{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:14px;margin-top:20px;}
 .sync-panel input{width:100%;background:var(--panel2);border:1px solid var(--line);color:var(--txt);border-radius:8px;padding:10px;margin-bottom:8px;font:inherit;font-size:14px;outline:none}
-.sync-panel button{width:100%;background:var(--accent);color:#fff;border:0;border-radius:8px;padding:10px;font:inherit;font-weight:600;margin-bottom:6px;cursor:pointer}
+.sync-panel button{width:100%;background:var(--txt);color:var(--bg);border:0;border-radius:8px;padding:10px;font:inherit;font-weight:700;margin-bottom:6px;cursor:pointer}
+.sync-panel button#btnPull{background:var(--panel2);color:var(--txt);border:1px solid var(--line);}
 </style>
 </head>
 <body>
@@ -138,12 +152,12 @@ input[type=number]{-moz-appearance:textfield}
 
 <div class="panel">
   <div class="row">
-    <span class="pill in">In</span>
+    <span class="pill in">In (+)</span>
     <div class="track"><div class="fill in" id="fillIn"></div></div>
     <span class="num" id="numIn">$0.00</span>
   </div>
   <div class="row">
-    <span class="pill out">Out</span>
+    <span class="pill out">Out (-)</span>
     <div class="track"><div class="fill out" id="fillOut"></div></div>
     <span class="num" id="numOut">$0.00</span>
   </div>
@@ -152,8 +166,8 @@ input[type=number]{-moz-appearance:textfield}
 
 <div class="panel">
   <div class="seg" id="typeSeg">
-    <button data-type="in" class="active">In</button>
-    <button data-type="out">Out</button>
+    <button data-type="in" class="active">Money In (+)</button>
+    <button data-type="out">Money Out (-)</button>
     <button data-type="transfer">Transfer</button>
   </div>
   
@@ -188,7 +202,7 @@ input[type=number]{-moz-appearance:textfield}
     <input id="amount" type="number" inputmode="decimal" step="0.01" min="0" placeholder="0.00">
   </div>
   <input id="note" type="text" placeholder="Note (lunch, salary, transfer…)" maxlength="60">
-  <button id="addBtn" class="primary">Add money in</button>
+  <button id="addBtn" class="primary" data-current="in">Add Money In (+)</button>
   <div class="hint" id="addHint"></div>
 </div>
 
@@ -202,8 +216,8 @@ input[type=number]{-moz-appearance:textfield}
   <input type="password" id="ghToken" placeholder="GitHub Token (with 'gist' scope)">
   <input type="text" id="ghGistId" placeholder="Gist ID (from the URL)">
   <div style="display:flex;gap:8px;">
-    <button id="btnPush" style="background:var(--in);">Upload to Cloud</button>
-    <button id="btnPull" style="background:var(--out);">Download from Cloud</button>
+    <button id="btnPush">Upload to Cloud</button>
+    <button id="btnPull">Load from Cloud</button>
   </div>
   <div class="hint" id="syncHint">Sync between laptop and phone.</div>
 </div>
@@ -289,7 +303,6 @@ input[type=number]{-moz-appearance:textfield}
       }).sort(function(a,b){ return (b.ts||0)-(a.ts||0); });
     }
 
-    // Safe Safari date parsing
     var parts = dayEl.value.split('-');
     var now = new Date(parts[0], parts[1]-1, parts[2]);
     var start = new Date(now);
@@ -359,10 +372,21 @@ input[type=number]{-moz-appearance:textfield}
 
     curSym.textContent = state.cur;
     
-    addBtn.className = 'primary';
-    if(curType === 'in'){ addBtn.textContent = 'Add Money In'; addHint.textContent = 'Adds to selected method'; }
-    else if(curType === 'out'){ addBtn.classList.add('out'); addBtn.textContent = 'Add Money Out'; addHint.textContent = 'Subtracts from selected method'; }
-    else { addBtn.classList.add('transfer'); addBtn.textContent = 'Transfer Funds'; addHint.textContent = 'Moves money between methods'; }
+    if(curType === 'in'){ 
+      addBtn.textContent = 'ADD MONEY IN (+)'; 
+      addBtn.setAttribute('data-current', 'in');
+      addHint.textContent = 'Adds to selected account'; 
+    }
+    else if(curType === 'out'){ 
+      addBtn.textContent = 'TAKE MONEY OUT (-)'; 
+      addBtn.setAttribute('data-current', 'out');
+      addHint.textContent = 'Subtracts from selected account'; 
+    }
+    else { 
+      addBtn.textContent = 'TRANSFER FUNDS'; 
+      addBtn.setAttribute('data-current', 'transfer');
+      addHint.textContent = 'Moves money between accounts'; 
+    }
 
     standardMethod.style.display = curType === 'transfer' ? 'none' : 'block';
     transferMethod.style.display = curType === 'transfer' ? 'block' : 'none';
@@ -384,7 +408,6 @@ input[type=number]{-moz-appearance:textfield}
       var sign = isIn ? '+' : (isOut ? '−' : '⇄');
       
       var meta = '';
-      // SAFETY CHECK: Added fallback for old data that might not have a method
       var safeMethod = t.method || 'account'; 
       if(t.type === 'transfer'){
         var safeTo = t.toMethod || 'savings';
@@ -430,6 +453,25 @@ input[type=number]{-moz-appearance:textfield}
     var cents = parseAmt(amountEl.value);
     if(cents === null) { amountEl.focus(); return; }
     
+    // Safety check for removing more money than an account has
+    if(curType === 'out'){
+      var b = balances();
+      if(b[methodSelect.value] < cents){
+        if(!confirm("Warning: This will make your " + methodSelect.value + " balance negative.\n\nAre you sure?")) {
+          return;
+        }
+      }
+    }
+    if(curType === 'transfer'){
+      var b2 = balances();
+      if(fromSelect.value === toSelect.value) { alert("Cannot transfer to the same location."); return; }
+      if(b2[fromSelect.value] < cents){
+        if(!confirm("Warning: You don't have enough in " + fromSelect.value + " to transfer this amount. It will go negative.\n\nAre you sure?")) {
+          return;
+        }
+      }
+    }
+    
     var newTx = {
       id: Date.now().toString(36) + Math.random().toString(36).slice(2, 7),
       type: curType,
@@ -440,7 +482,6 @@ input[type=number]{-moz-appearance:textfield}
     };
 
     if(curType === 'transfer'){
-      if(fromSelect.value === toSelect.value) { alert("Cannot transfer to the same location."); return; }
       newTx.method = fromSelect.value;
       newTx.toMethod = toSelect.value;
     } else {
@@ -546,7 +587,7 @@ input[type=number]{-moz-appearance:textfield}
 
   $('btnPull').addEventListener('click', function(){
     var creds = getSyncCreds(); if(!creds) return;
-    syncHint.textContent = "Downloading...";
+    syncHint.textContent = "Loading...";
     
     fetch(`https://api.github.com/gists/${creds.gid}`, {
       headers: { 'Authorization': `token ${creds.tok}`, 'Accept': 'application/vnd.github.v3+json' }
@@ -557,14 +598,14 @@ input[type=number]{-moz-appearance:textfield}
           state = remoteState;
           curInput.value = state.cur || '$';
           save(); render();
-          syncHint.textContent = "Downloaded successfully! ✅";
+          syncHint.textContent = "Loaded successfully! ✅";
         } else {
           syncHint.textContent = "Cancelled or empty cloud.";
         }
       } else {
         syncHint.textContent = "Could not find ledger.json in Gist.";
       }
-    }).catch(function(){ syncHint.textContent = "Download failed. Check token/gist. ❌"; });
+    }).catch(function(){ syncHint.textContent = "Load failed. Check token/gist. ❌"; });
   });
 
   curInput.value = state.cur;
