@@ -448,7 +448,7 @@ input[type=number]{-moz-appearance:textfield}
     </div>
     <div class="hint" id="syncHint">Credentials stay saved on this device.</div>
     <div class="info-box">
-      Once saved, your Token and Gist ID are stored permanently in this browser. With <strong>Auto-Sync</strong> turned on, offline edits are queued automatically and pushed as soon as you reconnect.
+      Once saved, your Token and Gist ID are stored permanently in this browser. With <strong>Auto-Sync</strong> turned on, offline adds and deletes are queued automatically and pushed as soon as you reconnect.
     </div>
   </div>
 </section>
@@ -521,6 +521,7 @@ input[type=number]{-moz-appearance:textfield}
   var PENDING_KEY = 'ledger_pending_push';
   var state = { txs: [], cur: '$', updatedAt: 0 };
   var hasPendingPush = false;
+  var syncInFlight = null;
 
   function load(){
     try{
@@ -966,8 +967,9 @@ input[type=number]{-moz-appearance:textfield}
     
     var payload = { files: { "ledger.json": { content: JSON.stringify(state, null, 2) } } };
     
-    return fetch(`https://api.github.com/gists/${creds.gid}`, {
+    return fetch(`https://api.github.com/gists/${creds.gid}?t=${Date.now()}`, {
       method: 'PATCH',
+      cache: 'no-store',
       headers: {
         'Authorization': `token ${creds.tok}`,
         'Accept': 'application/vnd.github.v3+json',
@@ -982,7 +984,7 @@ input[type=number]{-moz-appearance:textfield}
       return true;
     }).catch(function(err){ 
       setPendingPush(true);
-      headerStatus.textContent = "Sync Error";
+      headerStatus.textContent = "Offline / Pending";
       if(!isSilent) syncHint.textContent = "Upload failed (" + (err && err.message ? err.message : 'network') + "). Queued for retry. ❌"; 
       return false;
     });
@@ -998,7 +1000,8 @@ input[type=number]{-moz-appearance:textfield}
     headerStatus.textContent = "Checking…";
     if(!isSilent) syncHint.textContent = "Loading...";
     
-    return fetch(`https://api.github.com/gists/${creds.gid}`, {
+    return fetch(`https://api.github.com/gists/${creds.gid}?t=${Date.now()}`, {
+      cache: 'no-store',
       headers: {
         'Authorization': `token ${creds.tok}`,
         'Accept': 'application/vnd.github.v3+json'
@@ -1011,24 +1014,31 @@ input[type=number]{-moz-appearance:textfield}
         var remoteState = JSON.parse(data.files['ledger.json'].content);
         if(remoteState && Array.isArray(remoteState.txs)){
           if(isSilent){
-            var changed = false;
-            if((remoteState.updatedAt || 0) > (state.updatedAt || 0) || (state.txs.length === 0 && remoteState.txs.length > 0)){
+            var remoteUpdated = remoteState.updatedAt || 0;
+            var localUpdated = state.updatedAt || 0;
+            var differsFromLocal =
+              remoteUpdated !== localUpdated ||
+              JSON.stringify(remoteState.txs) !== JSON.stringify(state.txs) ||
+              (remoteState.cur || '$') !== (state.cur || '$');
+
+            if(differsFromLocal && (remoteUpdated >= localUpdated || state.txs.length === 0)){
               state.txs = remoteState.txs;
               state.cur = remoteState.cur || state.cur || '$';
-              state.updatedAt = remoteState.updatedAt || Date.now();
-              localStorage.setItem(KEY, JSON.stringify(state));
+              state.updatedAt = remoteUpdated || Date.now();
+              try{ localStorage.setItem(KEY, JSON.stringify(state)); }catch(e){}
               curInput.value = state.cur;
-              changed = true;
+              render();
+              headerStatus.textContent = "Synced";
+              return true;
             }
-            setPendingPush(false);
             headerStatus.textContent = "Synced";
-            return changed;
+            return false;
           } else {
             if(confirm("Overwrite local data (" + state.txs.length + " tx) with cloud data (" + remoteState.txs.length + " tx)?")){
               state.txs = remoteState.txs;
               state.cur = remoteState.cur || state.cur || '$';
               state.updatedAt = remoteState.updatedAt || Date.now();
-              localStorage.setItem(KEY, JSON.stringify(state));
+              try{ localStorage.setItem(KEY, JSON.stringify(state)); }catch(e){}
               curInput.value = state.cur;
               setPendingPush(false);
               render();
@@ -1048,14 +1058,16 @@ input[type=number]{-moz-appearance:textfield}
       }
       return false;
     }).catch(function(err){ 
-      headerStatus.textContent = "Sync Error";
+      headerStatus.textContent = hasPendingPush ? "Offline (Queued)" : "Sync Error";
       if(!isSilent) syncHint.textContent = "Load failed (" + (err && err.message ? err.message : 'network') + "). ❌"; 
       return false;
     });
   }
 
-  /* Two-Way Auto-Sync: Push queued offline changes first, then pull if remote is newer */
+  /* Two-Way Auto-Sync: Push queued offline changes first, or pull latest cloud state */
   function syncNow(isSilent){
+    if(syncInFlight) return syncInFlight;
+
     var creds = saveCredsToStorage(true);
     if(!creds){
       headerStatus.textContent = navigator.onLine ? "Local" : "Offline";
@@ -1065,13 +1077,18 @@ input[type=number]{-moz-appearance:textfield}
       headerStatus.textContent = hasPendingPush ? "Offline (Queued)" : "Offline";
       return Promise.resolve(false);
     }
+
+    var task;
     if(hasPendingPush){
-      return pushToCloud(isSilent).then(function(pushed){
-        if(pushed) return pullFromCloud(true);
-        return false;
-      });
+      task = pushToCloud(isSilent);
+    } else {
+      task = pullFromCloud(isSilent);
     }
-    return pullFromCloud(isSilent);
+
+    syncInFlight = task.finally(function(){
+      syncInFlight = null;
+    });
+    return syncInFlight;
   }
 
   $('btnPush').addEventListener('click', function(){ pushToCloud(false); });
