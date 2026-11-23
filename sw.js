@@ -1,4 +1,4 @@
-const CACHE = 'pocket-ledger-v1';
+const CACHE = 'pocket-ledger-v2';
 const CORE = ['./', './index.html', './manifest.json'];
 
 self.addEventListener('install', (event) => {
