@@ -34,50 +34,59 @@ body{
 .lbl{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;font-weight:600}
 button, input, select { touch-action: manipulation; }
 
-/* ---------- accounting splash screen ---------- */
+/* ---------- accounting splash screen (2s total) ---------- */
 #splash{
   position:fixed;inset:0;z-index:1200;background:var(--bg);
   display:flex;align-items:center;justify-content:center;padding:20px;
-  opacity:1;transition:opacity .45s ease;
+  opacity:1;transition:opacity .35s ease;
 }
 #splash.gone{opacity:0;pointer-events:none;}
 #splash.hide{display:none;}
 .splash-inner{text-align:center;display:flex;flex-direction:column;align-items:center;}
 .splash-logo{
-  font-size:clamp(2.6rem,12vw,3.8rem);font-weight:800;letter-spacing:-1.5px;
-  line-height:1.05;color:var(--txt);text-align:center;will-change:transform,opacity;
+  font-size:clamp(2.1rem,9.5vw,3.1rem);font-weight:800;letter-spacing:-1.2px;
+  line-height:1.1;color:var(--txt);text-align:center;will-change:transform,opacity;
 }
-#splash .splash-logo span{
+.splash-word{display:inline-block;}
+.splash-space{display:inline-block;width:0.32em;}
+#splash .splash-logo span.ch{
   display:inline-block;opacity:0;
-  animation:spell .4s cubic-bezier(.2,.7,.3,1) forwards;
+  animation:spell .28s cubic-bezier(.2,.7,.3,1) forwards;
 }
-#splash .splash-logo span:nth-child(1){animation-delay:.10s}
-#splash .splash-logo span:nth-child(2){animation-delay:.22s}
-#splash .splash-logo span:nth-child(3){animation-delay:.34s}
-#splash .splash-logo span:nth-child(4){animation-delay:.46s}
-#splash .splash-logo span:nth-child(5){animation-delay:.58s}
-#splash .splash-logo span:nth-child(6){animation-delay:.70s}
+/* 12 letters spelled within the first ~1.15s */
+#splash .splash-logo span.ch:nth-child(1){animation-delay:.06s}
+#splash .splash-logo span.ch:nth-child(2){animation-delay:.14s}
+#splash .splash-logo span.ch:nth-child(3){animation-delay:.22s}
+#splash .splash-logo span.ch:nth-child(4){animation-delay:.30s}
+#splash .splash-logo span.ch:nth-child(5){animation-delay:.38s}
+#splash .splash-logo span.ch:nth-child(6){animation-delay:.46s}
+#splash .splash-logo span.ch:nth-child(7){animation-delay:.54s}
+#splash .splash-logo span.ch:nth-child(8){animation-delay:.62s}
+#splash .splash-logo span.ch:nth-child(9){animation-delay:.70s}
+#splash .splash-logo span.ch:nth-child(10){animation-delay:.78s}
+#splash .splash-logo span.ch:nth-child(11){animation-delay:.86s}
+#splash .splash-logo span.ch:nth-child(12){animation-delay:.94s}
 @keyframes spell{
-  from{opacity:0;transform:translateY(8px) scale(.88)}
+  from{opacity:0;transform:translateY(7px) scale(.9)}
   to{opacity:1;transform:none}
 }
 #splash .dots,#splash .splash-note{
-  opacity:0;animation:fadein .45s ease .82s forwards;
+  opacity:0;animation:fadein .3s ease 1.02s forwards;
 }
 @keyframes fadein{to{opacity:1}}
 .dots{
   display:flex;gap:10px;justify-content:center;align-items:center;
-  margin-top:26px;pointer-events:none;will-change:opacity;
+  margin-top:24px;pointer-events:none;will-change:opacity;
 }
 .dots i{
   width:10px;height:10px;border-radius:50%;background:var(--txt);
-  animation:bounce 1s infinite;
+  animation:bounce .85s infinite;
 }
-.dots i:nth-child(2){animation-delay:.15s}
-.dots i:nth-child(3){animation-delay:.3s}
+.dots i:nth-child(2){animation-delay:.14s}
+.dots i:nth-child(3){animation-delay:.28s}
 @keyframes bounce{
   0%,80%,100%{transform:translateY(0);opacity:.35}
-  40%{transform:translateY(-9px);opacity:1}
+  40%{transform:translateY(-8px);opacity:1}
 }
 .splash-note{
   margin-top:16px;text-align:center;font-size:13px;font-weight:600;
@@ -86,7 +95,7 @@ button, input, select { touch-action: manipulation; }
 @media(prefers-reduced-motion:reduce){
   #splash{transition:none}
   .dots i{animation:none;opacity:.8}
-  #splash .splash-logo span,#splash .dots,#splash .splash-note{animation:none;opacity:1;transform:none}
+  #splash .splash-logo span.ch,#splash .dots,#splash .splash-note{animation:none;opacity:1;transform:none}
 }
 
 /* Header & Hamburger */
@@ -244,8 +253,14 @@ input[type=number]{-moz-appearance:textfield}
 <!-- Accounting Splash Screen -->
 <div id="splash" role="status" aria-live="polite">
   <div class="splash-inner">
-    <div class="splash-logo" role="img" aria-label="Ledger">
-      <span aria-hidden="true">L</span><span aria-hidden="true">e</span><span aria-hidden="true">d</span><span aria-hidden="true">g</span><span aria-hidden="true">e</span><span aria-hidden="true">r</span>
+    <div class="splash-logo" role="img" aria-label="Pocket Ledger">
+      <span class="splash-word" aria-hidden="true">
+        <span class="ch">P</span><span class="ch">o</span><span class="ch">c</span><span class="ch">k</span><span class="ch">e</span><span class="ch">t</span>
+      </span>
+      <span class="splash-space" aria-hidden="true"></span>
+      <span class="splash-word" aria-hidden="true">
+        <span class="ch">L</span><span class="ch">e</span><span class="ch">d</span><span class="ch">g</span><span class="ch">e</span><span class="ch">r</span>
+      </span>
     </div>
     <div class="dots" aria-hidden="true"><i></i><i></i><i></i></div>
     <p class="splash-note" id="splashNote">Reconciling your balances&hellip;</p>
@@ -451,12 +466,22 @@ input[type=number]{-moz-appearance:textfield}
 (function(){
   'use strict';
 
-  /* Splash Screen Controller */
+  /* Splash Screen Controller (2 seconds total) */
   var splashShownAt = Date.now();
   var splashNotes = [
     "Reconciling your balances\u2026",
     "Tallying debits and credits\u2026",
-    "Opening the general ledger\u2026"
+    "Opening the general ledger\u2026",
+    "Checking every penny in the pocket\u2026",
+    "Balancing the books\u2026",
+    "Counting coins and crisp notes\u2026",
+    "Matching inflows and outflows\u2026",
+    "Auditing your latest entries\u2026",
+    "Posting to the trial balance\u2026",
+    "Sweeping stray loose change\u2026",
+    "Closing the day\u2019s net flow\u2026",
+    "Verifying cash & savings ledgers\u2026",
+    "Setting up the chart of accounts\u2026"
   ];
   var splashNoteEl = document.getElementById('splashNote');
   if (splashNoteEl) {
@@ -467,16 +492,16 @@ input[type=number]{-moz-appearance:textfield}
     var s = document.getElementById('splash');
     if(!s || s.dataset.done) return;
     s.dataset.done = '1';
-    var wait = Math.max(0, 1200 - (Date.now() - splashShownAt));
+    var wait = Math.max(0, 2000 - (Date.now() - splashShownAt));
     setTimeout(function(){
       s.classList.add('gone');
       setTimeout(function(){
         s.classList.add('hide');
-      }, 460);
+      }, 360);
     }, wait);
   }
   window.addEventListener('load', hideSplash);
-  setTimeout(hideSplash, 2500);
+  setTimeout(hideSplash, 2000);
 
   var KEY = 'pocketledger.v1';
   var state = { txs: [], cur: '$', updatedAt: 0 };
