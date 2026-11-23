@@ -1,4 +1,4 @@
-const CACHE = 'pocket-ledger-v4';
+const CACHE = 'pocket-ledger-v5';
 const CORE = ['./', './index.html', './manifest.json'];
 
 self.addEventListener('install', (event) => {
@@ -21,8 +21,8 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
   const req = event.request;
   if (req.method !== 'GET') return;
+  if (req.url.includes('api.github.com')) return;
 
-  // Page loads: network first (so updates show up), cache as fallback
   if (req.mode === 'navigate') {
     event.respondWith(
       fetch(req)
@@ -36,7 +36,6 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Everything else: cache first, refresh quietly in the background
   event.respondWith(
     caches.match(req).then((hit) => {
       const network = fetch(req)
