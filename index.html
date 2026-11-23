@@ -167,7 +167,7 @@ button, input, select { touch-action: manipulation; }
 .view{display:none;}
 .view.active{display:block;}
 
-/* Balance Top Card & Casino Slot Roll */
+/* Balance Top Card & Casino Digit Reels */
 .top{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:16px;margin-bottom:14px}
 .big{font-size:38px;font-weight:800;letter-spacing:-1.5px;line-height:1.1;margin-top:2px;font-variant-numeric:tabular-nums}
 .cards{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:14px}
@@ -176,22 +176,15 @@ button, input, select { touch-action: manipulation; }
 .card .val{font-size:13px;font-weight:700;margin-top:3px;font-variant-numeric:tabular-nums;overflow:hidden;text-overflow:ellipsis;color:var(--txt)}
 .neg{color:var(--muted)!important; text-decoration: line-through;}
 
-.slot-rolling{
+.slot-reel{
   display:inline-block;
-  animation:slotBlurRoll .12s linear infinite;
-  color:var(--txt);
+  transition:transform .14s cubic-bezier(.22,1,.36,1), opacity .14s ease;
 }
-@keyframes slotBlurRoll{
-  0%{transform:translateY(-2px);opacity:.72;}
-  50%{transform:translateY(2px);opacity:1;}
-  100%{transform:translateY(-2px);opacity:.72;}
+.slot-reel.tick{
+  transform:translateY(-2px);
 }
-.slot-landed{
-  animation:slotLand .22s cubic-bezier(.22,1,.36,1);
-}
-@keyframes slotLand{
-  0%{transform:translateY(-5px) scale(1.03);}
-  100%{transform:translateY(0) scale(1);}
+.slot-reel.locked{
+  transform:translateY(0);
 }
 
 /* Date & Filters */
@@ -612,62 +605,90 @@ input[type=number]{-moz-appearance:textfield}
   startDateEl.value = todayStr();
   endDateEl.value = todayStr();
 
-  /* Casino Slot / Rolling Number Animation */
-  var slotTimers = {};
+  /* True Digit-by-Digit Casino Reel Spinner */
+  var reelIntervals = {};
   var prefersReducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  function rollBalanceElement(el, targetCents){
+  function setStaticBalanceElement(el, targetCents){
     if(!el) return;
-    var id = el.id || ('slot_' + Math.random());
-    if(slotTimers[id]){
-      clearInterval(slotTimers[id]);
-      delete slotTimers[id];
+    var id = el.id;
+    if(reelIntervals[id]){
+      reelIntervals[id].forEach(clearInterval);
+      delete reelIntervals[id];
     }
+    el.textContent = fmt(targetCents);
+    el.classList.toggle('neg', targetCents < 0);
+  }
+
+  function spinBalanceElement(el, targetCents){
+    if(!el) return;
+    var id = el.id || ('reel_' + Math.random());
+    if(reelIntervals[id]){
+      reelIntervals[id].forEach(clearInterval);
+      delete reelIntervals[id];
+    }
+    reelIntervals[id] = [];
 
     var finalText = fmt(targetCents);
     var isNeg = targetCents < 0;
+    el.classList.toggle('neg', isNeg);
 
     if(prefersReducedMotion){
       el.textContent = finalText;
-      el.classList.toggle('neg', isNeg);
       return;
     }
 
-    el.classList.remove('neg', 'slot-landed');
-    el.classList.add('slot-rolling');
+    // Build individual reels for each character so digits spin 0-9 and lock onto the exact target char
+    el.innerHTML = '';
+    var chars = finalText.split('');
+    var digitIndex = 0;
 
-    var ticks = 0;
-    var maxTicks = 11; // ~550ms total casino spin
-    var absBase = Math.max(Math.abs(targetCents), 100);
+    chars.forEach(function(ch){
+      var span = document.createElement('span');
+      span.className = 'slot-reel';
 
-    slotTimers[id] = setInterval(function(){
-      ticks++;
-      if(ticks >= maxTicks){
-        clearInterval(slotTimers[id]);
-        delete slotTimers[id];
-        el.classList.remove('slot-rolling');
-        el.textContent = finalText;
-        el.classList.toggle('neg', isNeg);
-        el.classList.add('slot-landed');
-        setTimeout(function(){ el.classList.remove('slot-landed'); }, 240);
-        return;
+      if(/[0-9]/.test(ch)){
+        var targetDigit = parseInt(ch, 10);
+        // Start from a visible spinning digit
+        var currentDigit = (targetDigit + 3 + (digitIndex % 4)) % 10;
+        span.textContent = String(currentDigit);
+        span.classList.add('tick');
+        el.appendChild(span);
+
+        // Stagger stop times left-to-right; hundredths digit (last digit) spins longest (~780ms)
+        var stopAfterMs = 280 + digitIndex * 95;
+        var startedAt = Date.now();
+
+        var timer = setInterval(function(){
+          if(Date.now() - startedAt >= stopAfterMs){
+            clearInterval(timer);
+            span.textContent = String(targetDigit);
+            span.classList.remove('tick');
+            span.classList.add('locked');
+            return;
+          }
+          currentDigit = (currentDigit + 1) % 10;
+          span.textContent = String(currentDigit);
+        }, 55);
+
+        reelIntervals[id].push(timer);
+        digitIndex++;
+      } else {
+        // Currency symbol, decimal point, or minus sign stays steady
+        span.textContent = ch;
+        el.appendChild(span);
       }
-      // Spin plausible random amounts that settle toward the target
-      var progress = ticks / maxTicks;
-      var jitterScale = (1 - progress) * 1.6 + 0.15;
-      var randCents = Math.round((Math.random() * absBase * 2 - absBase * 0.5) * jitterScale);
-      el.textContent = fmt(randCents);
-    }, 48);
+    });
   }
 
   function triggerBalanceSlotAnimation(){
     var b = balances();
     var total = b.account + b.savings + b.cash + b.coins;
-    rollBalanceElement(totalEl, total);
-    rollBalanceElement(bAcc, b.account);
-    rollBalanceElement(bSav, b.savings);
-    rollBalanceElement(bCash, b.cash);
-    rollBalanceElement(bCoins, b.coins);
+    spinBalanceElement(totalEl, total);
+    spinBalanceElement(bAcc, b.account);
+    spinBalanceElement(bSav, b.savings);
+    spinBalanceElement(bCash, b.cash);
+    spinBalanceElement(bCoins, b.coins);
   }
 
   /* Navigation & Drawer Logic */
@@ -695,7 +716,7 @@ input[type=number]{-moz-appearance:textfield}
     if(target) target.classList.add('active');
     pageTitle.textContent = viewTitles[viewName] || 'Pocket Ledger';
     closeDrawer();
-    render(true);
+    render(false);
   }
 
   document.querySelectorAll('.nav-item').forEach(function(btn){
@@ -793,12 +814,11 @@ input[type=number]{-moz-appearance:textfield}
     if(animateBalances){
       triggerBalanceSlotAnimation();
     } else {
-      totalEl.textContent = fmt(total);
-      totalEl.classList.toggle('neg', total < 0);
-      [[bAcc,b.account],[bSav,b.savings],[bCash,b.cash],[bCoins,b.coins]].forEach(function(pair){
-        pair[0].textContent = fmt(pair[1]);
-        pair[0].classList.toggle('neg', pair[1] < 0);
-      });
+      setStaticBalanceElement(totalEl, total);
+      setStaticBalanceElement(bAcc, b.account);
+      setStaticBalanceElement(bSav, b.savings);
+      setStaticBalanceElement(bCash, b.cash);
+      setStaticBalanceElement(bCoins, b.coins);
     }
 
     var sortedAll = state.txs.slice().sort(function(a,b){ return (b.ts||0)-(a.ts||0); });
@@ -991,7 +1011,7 @@ input[type=number]{-moz-appearance:textfield}
         if(!data || !Array.isArray(data.txs)) throw new Error('bad');
         if(confirm('Replace ALL current data with this backup?')) {
           state.txs = data.txs; state.cur = data.cur || '$';
-          curInput.value = state.cur; save(); render(true);
+          curInput.value = state.cur; save(); render(false);
           alert('Backup restored successfully.');
         }
       }catch(err){ alert('Invalid backup file.'); }
@@ -1111,7 +1131,7 @@ input[type=number]{-moz-appearance:textfield}
               localStorage.setItem(KEY, JSON.stringify(state));
               curInput.value = state.cur;
               setPendingPush(false);
-              render(true);
+              render(false);
               headerStatus.textContent = "Synced";
               syncHint.textContent = "Loaded " + state.txs.length + " tx(s)! ✅";
               return true;
@@ -1157,28 +1177,28 @@ input[type=number]{-moz-appearance:textfield}
   $('btnPush').addEventListener('click', function(){ pushToCloud(false); });
   $('btnPull').addEventListener('click', function(){ pullFromCloud(false); });
 
-  /* Refresh Button: Triggers Casino Slot Roll + Syncs */
+  /* Refresh Button: Triggers Reel Animation + Syncs */
   refreshBtn.addEventListener('click', function(){
     refreshBtn.classList.add('spinning');
     render(true);
-    var afterSync = function(){
-      render(true);
+    var finishRefresh = function(changed){
+      if(changed) render(false);
       setTimeout(function(){ refreshBtn.classList.remove('spinning'); }, 450);
     };
     if(localStorage.getItem('ledger_autosync') === 'true'){
-      syncNow(true).then(afterSync).catch(afterSync);
+      syncNow(true).then(finishRefresh).catch(function(){ finishRefresh(false); });
     } else {
-      setTimeout(afterSync, 550);
+      setTimeout(function(){ finishRefresh(false); }, 650);
     }
   });
 
-  /* Online / Offline Status & Auto-Sync on Startup / Return */
+  /* Online / Offline Status & Auto-Sync on Startup / Reconnect */
   function updateOnlineStatus(){
     if(!navigator.onLine){
       headerStatus.textContent = hasPendingPush ? "Offline (Queued)" : "Offline";
     } else if(localStorage.getItem('ledger_autosync') === 'true'){
       syncNow(true).then(function(changed){
-        if(changed) render(true);
+        if(changed) render(false);
       });
     } else {
       headerStatus.textContent = "Local";
@@ -1186,12 +1206,6 @@ input[type=number]{-moz-appearance:textfield}
   }
   window.addEventListener('online', updateOnlineStatus);
   window.addEventListener('offline', updateOnlineStatus);
-  document.addEventListener('visibilitychange', function(){
-    if(document.visibilityState === 'visible'){
-      render(true);
-      updateOnlineStatus();
-    }
-  });
 
   /* Register Dedicated Service Worker */
   if ('serviceWorker' in navigator) {
