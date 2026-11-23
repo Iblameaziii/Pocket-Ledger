@@ -26,14 +26,76 @@ html,body{margin:0;padding:0;touch-action:manipulation;}
 body{
   background:var(--bg); color:var(--txt);
   font:16px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
-  padding:18px 14px calc(70px + env(safe-area-inset-bottom));
-  padding-top:calc(18px + env(safe-area-inset-top));
+  padding:14px 14px calc(70px + env(safe-area-inset-bottom));
+  padding-top:calc(14px + env(safe-area-inset-top));
   max-width:560px; margin:0 auto;
   -webkit-text-size-adjust:100%;
 }
 .lbl{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;font-weight:600}
 button, input, select { touch-action: manipulation; }
 
+/* Header & Hamburger */
+.header{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:14px;padding:4px 0;
+}
+.header-left{display:flex;align-items:center;gap:12px;}
+.menu-btn{
+  width:40px;height:40px;border-radius:11px;border:1px solid var(--line);
+  background:var(--panel);color:var(--txt);display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:4px;cursor:pointer;padding:0;
+}
+.menu-btn:active{background:var(--panel2)}
+.menu-btn span{display:block;width:18px;height:2px;background:var(--txt);border-radius:2px;}
+.page-title{font-size:18px;font-weight:700;letter-spacing:-0.3px;}
+.sync-badge{font-size:11px;color:var(--muted);background:var(--panel);border:1px solid var(--line);padding:4px 9px;border-radius:99px;}
+
+/* Sidebar Drawer */
+.drawer-backdrop{
+  position:fixed;inset:0;background:rgba(0,0,0,0.65);z-index:998;
+  opacity:0;pointer-events:none;transition:opacity .25s ease;
+}
+.drawer-backdrop.open{opacity:1;pointer-events:auto;}
+.drawer{
+  position:fixed;top:0;bottom:0;left:0;width:270px;max-width:80vw;
+  background:var(--panel);border-right:1px solid var(--line);z-index:999;
+  transform:translateX(-100%);transition:transform .25s cubic-bezier(.4,0,.2,1);
+  display:flex;flex-direction:column;justify-content:space-between;
+  padding:calc(20px + env(safe-area-inset-top)) 16px calc(20px + env(safe-area-inset-bottom));
+}
+.drawer.open{transform:translateX(0);}
+.drawer-top{display:flex;flex-direction:column;gap:6px;}
+.drawer-header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding-bottom:14px;margin-bottom:8px;border-bottom:1px solid var(--line);
+}
+.drawer-header strong{font-size:17px;letter-spacing:-0.3px;}
+.close-drawer{
+  background:transparent;border:0;color:var(--muted);font-size:24px;
+  line-height:1;cursor:pointer;padding:4px 8px;
+}
+.nav-item{
+  width:100%;text-align:left;background:transparent;border:0;color:var(--muted);
+  padding:12px 14px;border-radius:11px;font:inherit;font-size:15px;font-weight:600;
+  cursor:pointer;display:flex;align-items:center;gap:10px;transition:.15s;
+}
+.nav-item:hover{background:var(--panel2);color:var(--txt);}
+.nav-item.active{background:var(--txt);color:var(--bg);}
+.drawer-bottom{
+  border-top:1px solid var(--line);padding-top:14px;
+  display:flex;align-items:center;justify-content:space-between;
+}
+.drawer-bottom label{font-size:13px;font-weight:600;color:var(--muted);display:flex;align-items:center;gap:10px;}
+.drawer-bottom input#cur{
+  width:54px;background:var(--panel2);border:1px solid var(--line);color:var(--txt);
+  border-radius:8px;padding:7px 8px;font:inherit;font-size:14px;font-weight:700;text-align:center;outline:none;
+}
+
+/* Views */
+.view{display:none;}
+.view.active{display:block;}
+
+/* Balance Top Card */
 .top{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:16px;margin-bottom:14px}
 .big{font-size:38px;font-weight:800;letter-spacing:-1.5px;line-height:1.1;margin-top:2px;font-variant-numeric:tabular-nums}
 .cards{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:14px}
@@ -42,10 +104,11 @@ button, input, select { touch-action: manipulation; }
 .card .val{font-size:13px;font-weight:700;margin-top:3px;font-variant-numeric:tabular-nums;overflow:hidden;text-overflow:ellipsis;color:var(--txt)}
 .neg{color:var(--muted)!important; text-decoration: line-through;}
 
+/* Date & Filters */
 .daybar{display:flex;gap:6px;align-items:center;margin-bottom:10px}
 .daybar .nav{width:36px;height:42px;flex:none;border:1px solid var(--line);background:var(--panel);color:var(--txt);border-radius:11px;font-size:20px;line-height:1;cursor:pointer}
 .daybar .nav:active{background:var(--panel2)}
-#day{flex:1;min-width:0;background:var(--panel);border:1px solid var(--line);color:var(--txt);border-radius:11px;padding:10px 6px;font:inherit;font-size:14px;font-weight:600;outline:none;-webkit-appearance:none;appearance:none;text-align:center;}
+.date-input{flex:1;min-width:0;background:var(--panel);border:1px solid var(--line);color:var(--txt);border-radius:11px;padding:10px 6px;font:inherit;font-size:14px;font-weight:600;outline:none;-webkit-appearance:none;appearance:none;text-align:center;}
 .filters{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;margin-bottom:10px;scrollbar-width:none}
 .filters::-webkit-scrollbar{display:none}
 .filters button{flex:none;background:var(--panel);border:1px solid var(--line);color:var(--muted);padding:8px 14px;border-radius:99px;font:inherit;font-size:13px;font-weight:600;cursor:pointer}
@@ -68,6 +131,7 @@ button, input, select { touch-action: manipulation; }
 .netrow{display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--line);margin-top:12px;padding-top:11px;font-size:14px;color:var(--muted);font-weight:600}
 .netrow strong{font-size:17px;font-variant-numeric:tabular-nums;color:var(--txt)}
 
+/* Entry Form */
 .seg{display:flex;background:var(--panel2);border-radius:12px;padding:4px;gap:4px;margin-bottom:10px}
 .seg button{flex:1;border:0;background:transparent;color:var(--muted);padding:10px 4px;border-radius:9px;font:inherit;font-size:14px;font-weight:600;cursor:pointer;transition:.15s}
 .seg button.active{background:var(--panel);color:var(--txt);box-shadow:0 1px 4px rgba(0,0,0,.45)}
@@ -89,8 +153,10 @@ input[type=number]{-moz-appearance:textfield}
 .primary[data-current="transfer"]{background:var(--panel2);color:var(--txt)}
 .hint{text-align:center;font-size:12px;color:var(--muted);margin-top:9px}
 
-.listhead{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:20px 2px 10px}
+/* Transaction List */
+.listhead{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:14px 2px 10px}
 .listhead h2{margin:0;font-size:15px;font-weight:700;letter-spacing:.02em}
+.link-btn{background:none;border:0;color:var(--txt);font:inherit;font-size:13px;font-weight:600;text-decoration:underline;cursor:pointer;padding:0;}
 .tx{display:flex;align-items:center;gap:11px;padding:11px 12px;background:var(--panel);border:1px solid var(--line);border-radius:13px;margin-bottom:8px}
 .dot{width:9px;height:9px;border-radius:50%;flex:none}
 .dot.in{background:var(--txt)}
@@ -106,136 +172,221 @@ input[type=number]{-moz-appearance:textfield}
 .del{width:30px;height:30px;flex:none;border:0;border-radius:50%;background:transparent;color:#5c6675;font-size:19px;line-height:1;cursor:pointer;padding:0}
 .empty{text-align:center;color:var(--muted);font-size:14px;padding:26px 10px}
 
-.footer{margin-top:26px;padding-top:16px;border-top:1px solid var(--line);display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:center;font-size:13px;color:var(--muted)}
-.footer button{background:var(--panel);border:1px solid var(--line);color:var(--txt);border-radius:9px;padding:7px 12px;font:inherit;font-size:13px;font-weight:600;cursor:pointer}
-.footer button:active{background:var(--panel2)}
-.footer input#cur{width:46px;background:var(--panel2);border:1px solid var(--line);color:var(--txt);border-radius:8px;padding:6px 8px;font:inherit;font-size:13px;text-align:center;outline:none}
-
-.sync-panel{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:14px;margin-top:20px;}
-.sync-panel input{width:100%;background:var(--panel2);border:1px solid var(--line);color:var(--txt);border-radius:8px;padding:10px;margin-bottom:8px;font:inherit;font-size:14px;outline:none}
-.sync-panel button{width:100%;background:var(--txt);color:var(--bg);border:0;border-radius:8px;padding:10px;font:inherit;font-weight:700;margin-bottom:6px;cursor:pointer}
-.sync-panel button#btnPull{background:var(--panel2);color:var(--txt);border:1px solid var(--line);}
+/* Cloud & Import/Export Panels */
+.field-label{display:block;font-size:12px;color:var(--muted);margin-bottom:5px;font-weight:600;}
+.text-input{width:100%;background:var(--panel2);border:1px solid var(--line);color:var(--txt);border-radius:10px;padding:11px 12px;margin-bottom:12px;font:inherit;font-size:14px;outline:none}
+.btn-stack{display:flex;flex-direction:column;gap:10px;}
+.btn-solid{width:100%;background:var(--txt);color:var(--bg);border:1px solid var(--txt);border-radius:11px;padding:13px;font:inherit;font-size:15px;font-weight:700;cursor:pointer}
+.btn-outline{width:100%;background:var(--panel2);color:var(--txt);border:1px solid var(--line);border-radius:11px;padding:13px;font:inherit;font-size:15px;font-weight:700;cursor:pointer}
+.toggle-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0 14px;border-bottom:1px solid var(--line);margin-bottom:14px;}
+.toggle-row span{font-size:14px;font-weight:600;}
+.toggle-row input[type="checkbox"]{width:20px;height:20px;accent-color:var(--txt);cursor:pointer;}
+.info-box{background:var(--panel2);border-radius:10px;padding:12px;font-size:13px;color:var(--muted);line-height:1.5;margin-top:12px;}
 </style>
 </head>
 <body>
 
-<div class="top">
-  <div class="lbl">Total in pocket</div>
-  <div class="big" id="total">$0.00</div>
-  <div class="cards">
-    <div class="card"><div class="lbl">Account</div><div class="val" id="b-account">$0.00</div></div>
-    <div class="card"><div class="lbl">Savings</div><div class="val" id="b-savings">$0.00</div></div>
-    <div class="card"><div class="lbl">Cash</div><div class="val" id="b-cash">$0.00</div></div>
-    <div class="card"><div class="lbl">Coins</div><div class="val" id="b-coins">$0.00</div></div>
+<!-- Sidebar Backdrop & Drawer -->
+<div class="drawer-backdrop" id="drawerBackdrop"></div>
+<aside class="drawer" id="drawer">
+  <div class="drawer-top">
+    <div class="drawer-header">
+      <strong>Pocket Ledger</strong>
+      <button class="close-drawer" id="closeDrawer" aria-label="Close menu">×</button>
+    </div>
+    <button class="nav-item active" data-view="dashboard">Dashboard</button>
+    <button class="nav-item" data-view="transactions">Transactions</button>
+    <button class="nav-item" data-view="sync">Cloud Sync</button>
+    <button class="nav-item" data-view="io">Import / Export</button>
   </div>
-</div>
-
-<div class="daybar">
-  <button class="nav" id="prev" aria-label="Previous day">‹</button>
-  <input type="date" id="day">
-  <button class="nav" id="next" aria-label="Next day">›</button>
-</div>
-
-<div class="filters" id="filterSeg">
-  <button data-scope="day" class="active">Day</button>
-  <button data-scope="week">Week</button>
-  <button data-scope="month">Month</button>
-  <button data-scope="year">Year</button>
-  <button data-scope="custom">Custom</button>
-  <button data-scope="all">All Time</button>
-</div>
-
-<div class="custom-range" id="customRange">
-  <input type="date" id="startDate">
-  <input type="date" id="endDate">
-</div>
-
-<div class="panel">
-  <div class="row">
-    <span class="pill in">In (+)</span>
-    <div class="track"><div class="fill in" id="fillIn"></div></div>
-    <span class="num" id="numIn">$0.00</span>
+  <div class="drawer-bottom">
+    <label for="cur">Currency <input id="cur" type="text" maxlength="4" value="$"></label>
+    <span style="font-size:11px;color:var(--muted);" id="offlineBadge">Offline Ready</span>
   </div>
-  <div class="row">
-    <span class="pill out">Out (-)</span>
-    <div class="track"><div class="fill out" id="fillOut"></div></div>
-    <span class="num" id="numOut">$0.00</span>
-  </div>
-  <div class="netrow"><span>Net for period</span><strong id="net">$0.00</strong></div>
-</div>
+</aside>
 
-<div class="panel">
-  <div class="seg" id="typeSeg">
-    <button data-type="in" class="active">Money In (+)</button>
-    <button data-type="out">Money Out (-)</button>
-    <button data-type="transfer">Transfer</button>
+<!-- Top Navigation Header -->
+<header class="header">
+  <div class="header-left">
+    <button class="menu-btn" id="openDrawer" aria-label="Open menu">
+      <span></span><span></span><span></span>
+    </button>
+    <div class="page-title" id="pageTitle">Dashboard</div>
   </div>
-  
-  <div id="standardMethod">
-    <select id="methodSelect" class="method-select">
-      <option value="account">Account</option>
-      <option value="savings">Savings</option>
-      <option value="cash">Cash</option>
-      <option value="coins">Coins</option>
-    </select>
-  </div>
+  <div class="sync-badge" id="headerStatus">Local</div>
+</header>
 
-  <div id="transferMethod" style="display:none;">
-    <div style="display:flex;gap:8px;margin-bottom:10px;">
-      <select id="fromSelect" class="method-select" style="margin:0;">
-        <option value="account">From: Account</option>
-        <option value="savings">From: Savings</option>
-        <option value="cash">From: Cash</option>
-        <option value="coins">From: Coins</option>
-      </select>
-      <select id="toSelect" class="method-select" style="margin:0;">
-        <option value="account">To: Account</option>
-        <option value="savings">To: Savings</option>
-        <option value="cash">To: Cash</option>
-        <option value="coins">To: Coins</option>
-      </select>
+<!-- VIEW 1: DASHBOARD -->
+<main id="view-dashboard" class="view active">
+  <div class="top">
+    <div class="lbl">Total in pocket</div>
+    <div class="big" id="total">$0.00</div>
+    <div class="cards">
+      <div class="card"><div class="lbl">Account</div><div class="val" id="b-account">$0.00</div></div>
+      <div class="card"><div class="lbl">Savings</div><div class="val" id="b-savings">$0.00</div></div>
+      <div class="card"><div class="lbl">Cash</div><div class="val" id="b-cash">$0.00</div></div>
+      <div class="card"><div class="lbl">Coins</div><div class="val" id="b-coins">$0.00</div></div>
     </div>
   </div>
 
-  <div class="amountrow">
-    <span class="cur" id="curSym">$</span>
-    <input id="amount" type="number" inputmode="decimal" step="0.01" min="0" placeholder="0.00">
+  <!-- Entry Date Selector -->
+  <div class="daybar">
+    <button class="nav" id="prev" aria-label="Previous day">‹</button>
+    <input type="date" id="day" class="date-input">
+    <button class="nav" id="next" aria-label="Next day">›</button>
   </div>
-  <input id="note" type="text" placeholder="Note (lunch, salary, transfer…)" maxlength="60">
-  <button id="addBtn" class="primary" data-current="in">Add Money In (+)</button>
-  <div class="hint" id="addHint"></div>
-</div>
 
-<div class="listhead">
-  <h2>History</h2>
-</div>
-<div id="list"></div>
+  <!-- Add Transaction Panel -->
+  <div class="panel">
+    <div class="seg" id="typeSeg">
+      <button data-type="in" class="active">Money In (+)</button>
+      <button data-type="out">Money Out (-)</button>
+      <button data-type="transfer">Transfer</button>
+    </div>
+    
+    <div id="standardMethod">
+      <select id="methodSelect" class="method-select">
+        <option value="account">Account</option>
+        <option value="savings">Savings</option>
+        <option value="cash">Cash</option>
+        <option value="coins">Coins</option>
+      </select>
+    </div>
 
-<div class="sync-panel">
-  <div class="lbl" style="margin-bottom:8px;">Cloud Sync (GitHub Gist)</div>
-  <input type="password" id="ghToken" placeholder="GitHub Token (with 'gist' scope)">
-  <input type="text" id="ghGistId" placeholder="Gist ID (from the URL)">
-  <div style="display:flex;gap:8px;">
-    <button id="btnPush">Upload to Cloud</button>
-    <button id="btnPull">Load from Cloud</button>
+    <div id="transferMethod" style="display:none;">
+      <div style="display:flex;gap:8px;margin-bottom:10px;">
+        <select id="fromSelect" class="method-select" style="margin:0;">
+          <option value="account">From: Account</option>
+          <option value="savings">From: Savings</option>
+          <option value="cash">From: Cash</option>
+          <option value="coins">From: Coins</option>
+        </select>
+        <select id="toSelect" class="method-select" style="margin:0;">
+          <option value="account">To: Account</option>
+          <option value="savings">To: Savings</option>
+          <option value="cash">To: Cash</option>
+          <option value="coins">To: Coins</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="amountrow">
+      <span class="cur" id="curSym">$</span>
+      <input id="amount" type="number" inputmode="decimal" step="0.01" min="0" placeholder="0.00">
+    </div>
+    <input id="note" type="text" placeholder="Note (lunch, salary, transfer…)" maxlength="60">
+    <button id="addBtn" class="primary" data-current="in">ADD MONEY IN (+)</button>
+    <div class="hint" id="addHint">Adds to selected account</div>
   </div>
-  <div class="hint" id="syncHint">Sync between laptop and phone.</div>
-</div>
 
-<div class="footer">
-  <label>Currency <input id="cur" type="text" maxlength="4" value="$"></label>
-  <button id="exportBtnCsv">Export Excel/CSV</button>
-  <button id="exportBtn">Export JSON</button>
-  <button id="importBtn">Import JSON</button>
-  <input type="file" id="fileInput" accept="application/json,.json" hidden>
-</div>
+  <!-- Recent Preview -->
+  <div class="listhead">
+    <h2>Recent Activity</h2>
+    <button class="link-btn" id="viewAllLink">View All →</button>
+  </div>
+  <div id="recentList"></div>
+</main>
+
+<!-- VIEW 2: TRANSACTIONS -->
+<section id="view-transactions" class="view">
+  <div class="daybar">
+    <button class="nav" id="txPrev" aria-label="Previous day">‹</button>
+    <input type="date" id="txDay" class="date-input">
+    <button class="nav" id="txNext" aria-label="Next day">›</button>
+  </div>
+
+  <div class="filters" id="filterSeg">
+    <button data-scope="day" class="active">Day</button>
+    <button data-scope="week">Week</button>
+    <button data-scope="month">Month</button>
+    <button data-scope="year">Year</button>
+    <button data-scope="custom">Custom</button>
+    <button data-scope="all">All Time</button>
+  </div>
+
+  <div class="custom-range" id="customRange">
+    <input type="date" id="startDate">
+    <input type="date" id="endDate">
+  </div>
+
+  <div class="panel">
+    <div class="row">
+      <span class="pill in">In (+)</span>
+      <div class="track"><div class="fill in" id="fillIn"></div></div>
+      <span class="num" id="numIn">$0.00</span>
+    </div>
+    <div class="row">
+      <span class="pill out">Out (-)</span>
+      <div class="track"><div class="fill out" id="fillOut"></div></div>
+      <span class="num" id="numOut">$0.00</span>
+    </div>
+    <div class="netrow"><span>Net for period</span><strong id="net">$0.00</strong></div>
+  </div>
+
+  <div class="listhead">
+    <h2 id="txListHeading">Transactions</h2>
+    <span class="lbl" id="txCount">0 items</span>
+  </div>
+  <div id="list"></div>
+</section>
+
+<!-- VIEW 3: CLOUD SYNC -->
+<section id="view-sync" class="view">
+  <div class="panel">
+    <div class="lbl" style="margin-bottom:12px;">GitHub Gist Configuration</div>
+    
+    <div class="toggle-row">
+      <span>Auto-Sync on Changes & Startup</span>
+      <input type="checkbox" id="autoSyncToggle">
+    </div>
+
+    <label class="field-label" for="ghToken">GitHub Personal Access Token (gist scope)</label>
+    <input type="password" id="ghToken" class="text-input" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx">
+    
+    <label class="field-label" for="ghGistId">Gist ID</label>
+    <input type="text" id="ghGistId" class="text-input" placeholder="e.g. a1b2c3d4e5f6g7h8i9j0">
+    
+    <div class="btn-stack">
+      <button id="btnSaveCreds" class="btn-outline">Save Credentials</button>
+      <button id="btnPush" class="btn-solid">Upload to Cloud Now</button>
+      <button id="btnPull" class="btn-outline">Load from Cloud Now</button>
+    </div>
+    <div class="hint" id="syncHint">Credentials stay saved on this device.</div>
+    <div class="info-box">
+      Once saved, your Token and Gist ID are stored permanently in this browser. With <strong>Auto-Sync</strong> turned on, any transaction you add or delete automatically updates your Gist in the background.
+    </div>
+  </div>
+</section>
+
+<!-- VIEW 4: IMPORT / EXPORT -->
+<section id="view-io" class="view">
+  <div class="panel">
+    <div class="lbl" style="margin-bottom:12px;">Export Data</div>
+    <div class="btn-stack">
+      <button id="exportBtnCsv" class="btn-solid">Export CSV (Filtered Transactions)</button>
+      <button id="exportBtn" class="btn-outline">Export Full Backup (JSON)</button>
+    </div>
+    <div class="info-box">
+      CSV exports transactions matching your currently selected filter in the Transactions tab. JSON exports everything including your currency setting.
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="lbl" style="margin-bottom:12px;">Import Data</div>
+    <button id="importBtn" class="btn-outline">Import Backup File (.json)</button>
+    <input type="file" id="fileInput" accept="application/json,.json" hidden>
+    <div class="info-box">
+      Restoring a JSON backup will replace your current local transactions with the ones in the file.
+    </div>
+  </div>
+</section>
 
 <script>
 (function(){
   'use strict';
 
   var KEY = 'pocketledger.v1';
-  var state = { txs: [], cur: '$' };
+  var state = { txs: [], cur: '$', updatedAt: 0 };
 
   function load(){
     try{
@@ -245,17 +396,25 @@ input[type=number]{-moz-appearance:textfield}
         if(d && Array.isArray(d.txs)){
           state.txs = d.txs;
           state.cur = d.cur || '$';
+          state.updatedAt = d.updatedAt || 0;
         }
       }
     }catch(e){}
     var tok = localStorage.getItem('ledger_token');
     var gid = localStorage.getItem('ledger_gist');
+    var auto = localStorage.getItem('ledger_autosync') === 'true';
     if(tok) document.getElementById('ghToken').value = tok;
     if(gid) document.getElementById('ghGistId').value = gid;
+    document.getElementById('autoSyncToggle').checked = auto;
   }
-  function save(){
+
+  function save(skipAutoPush){
+    state.updatedAt = Date.now();
     try{ localStorage.setItem(KEY, JSON.stringify(state)); }
     catch(e){ alert('Could not save.'); }
+    if(!skipAutoPush && localStorage.getItem('ledger_autosync') === 'true'){
+      pushToCloud(true);
+    }
   }
   load();
 
@@ -277,19 +436,55 @@ input[type=number]{-moz-appearance:textfield}
 
   var $ = function(id){ return document.getElementById(id); };
   var totalEl=$('total'), bAcc=$('b-account'), bSav=$('b-savings'), bCash=$('b-cash'), bCoins=$('b-coins');
-  var dayEl=$('day'), filterSeg=$('filterSeg'), customRange=$('customRange'), startDateEl=$('startDate'), endDateEl=$('endDate');
+  var dayEl=$('day'), txDayEl=$('txDay'), filterSeg=$('filterSeg'), customRange=$('customRange'), startDateEl=$('startDate'), endDateEl=$('endDate');
   var fillIn=$('fillIn'), fillOut=$('fillOut'), numIn=$('numIn'), numOut=$('numOut'), netEl=$('net');
-  var amountEl=$('amount'), noteEl=$('note'), addBtn=$('addBtn'), addHint=$('addHint'), listEl=$('list');
+  var amountEl=$('amount'), noteEl=$('note'), addBtn=$('addBtn'), addHint=$('addHint'), listEl=$('list'), recentListEl=$('recentList');
   var curInput=$('cur'), curSym=$('curSym');
   var typeSeg=$('typeSeg'), methodSelect=$('methodSelect'), fromSelect=$('fromSelect'), toSelect=$('toSelect');
   var standardMethod=$('standardMethod'), transferMethod=$('transferMethod');
-  var syncHint=$('syncHint');
+  var syncHint=$('syncHint'), headerStatus=$('headerStatus'), txCountEl=$('txCount');
 
   var curType='in', scope='day';
   dayEl.value = todayStr();
+  txDayEl.value = todayStr();
   startDateEl.value = todayStr();
   endDateEl.value = todayStr();
 
+  /* Navigation & Drawer Logic */
+  var drawer = $('drawer'), backdrop = $('drawerBackdrop'), pageTitle = $('pageTitle');
+  var viewTitles = {
+    dashboard: 'Dashboard',
+    transactions: 'Transactions',
+    sync: 'Cloud Sync',
+    io: 'Import / Export'
+  };
+
+  function openDrawer(){ drawer.classList.add('open'); backdrop.classList.add('open'); }
+  function closeDrawer(){ drawer.classList.remove('open'); backdrop.classList.remove('open'); }
+
+  $('openDrawer').addEventListener('click', openDrawer);
+  $('closeDrawer').addEventListener('click', closeDrawer);
+  backdrop.addEventListener('click', closeDrawer);
+
+  function switchView(viewName){
+    document.querySelectorAll('.view').forEach(function(v){ v.classList.remove('active'); });
+    document.querySelectorAll('.nav-item').forEach(function(btn){
+      btn.classList.toggle('active', btn.dataset.view === viewName);
+    });
+    var target = $('view-' + viewName);
+    if(target) target.classList.add('active');
+    pageTitle.textContent = viewTitles[viewName] || 'Pocket Ledger';
+    closeDrawer();
+    render();
+  }
+
+  document.querySelectorAll('.nav-item').forEach(function(btn){
+    btn.addEventListener('click', function(){ switchView(btn.dataset.view); });
+  });
+
+  $('viewAllLink').addEventListener('click', function(){ switchView('transactions'); });
+
+  /* Filtering Logic */
   function getFilteredTxs() {
     if (scope === 'all') return state.txs.slice().sort(function(a,b){ return (b.ts||0)-(a.ts||0); });
     
@@ -303,7 +498,7 @@ input[type=number]{-moz-appearance:textfield}
       }).sort(function(a,b){ return (b.ts||0)-(a.ts||0); });
     }
 
-    var parts = dayEl.value.split('-');
+    var parts = txDayEl.value.split('-');
     var now = new Date(parts[0], parts[1]-1, parts[2]);
     var start = new Date(now);
     var end = new Date(now);
@@ -341,65 +536,7 @@ input[type=number]{-moz-appearance:textfield}
     return b;
   }
 
-  function render(){
-    var b = balances();
-    var total = b.account + b.savings + b.cash + b.coins;
-    totalEl.textContent = fmt(total);
-    totalEl.classList.toggle('neg', total < 0);
-
-    [[bAcc,b.account],[bSav,b.savings],[bCash,b.cash],[bCoins,b.coins]].forEach(function(pair){
-      pair[0].textContent = fmt(pair[1]);
-      pair[0].classList.toggle('neg', pair[1] < 0);
-    });
-
-    var filtered = getFilteredTxs();
-    var sIn=0, sOut=0;
-    for(var i=0;i<filtered.length;i++){
-      var t = filtered[i];
-      if(t.type === 'in') sIn += t.cents; 
-      else if(t.type === 'out') sOut += t.cents;
-    }
-
-    var max = Math.max(sIn, sOut, 1);
-    fillIn.style.width = (sIn/max*100)+'%';
-    fillOut.style.width = (sOut/max*100)+'%';
-    numIn.textContent = fmt(sIn);
-    numOut.textContent = fmt(sOut);
-
-    var net = sIn - sOut;
-    netEl.textContent = (net > 0 ? '+' : '') + fmt(net);
-    netEl.classList.toggle('neg', net < 0);
-
-    curSym.textContent = state.cur;
-    
-    if(curType === 'in'){ 
-      addBtn.textContent = 'ADD MONEY IN (+)'; 
-      addBtn.setAttribute('data-current', 'in');
-      addHint.textContent = 'Adds to selected account'; 
-    }
-    else if(curType === 'out'){ 
-      addBtn.textContent = 'TAKE MONEY OUT (-)'; 
-      addBtn.setAttribute('data-current', 'out');
-      addHint.textContent = 'Subtracts from selected account'; 
-    }
-    else { 
-      addBtn.textContent = 'TRANSFER FUNDS'; 
-      addBtn.setAttribute('data-current', 'transfer');
-      addHint.textContent = 'Moves money between accounts'; 
-    }
-
-    standardMethod.style.display = curType === 'transfer' ? 'none' : 'block';
-    transferMethod.style.display = curType === 'transfer' ? 'block' : 'none';
-
-    renderList(filtered);
-  }
-
-  function renderList(items){
-    if(!items.length){
-      listEl.innerHTML = '<div class="empty">No transactions for this period.</div>';
-      return;
-    }
-
+  function buildTxHtml(items){
     var html = '';
     for(var i=0;i<items.length;i++){
       var t = items[i];
@@ -426,9 +563,75 @@ input[type=number]{-moz-appearance:textfield}
         '<button class="del" data-id="' + t.id + '">×</button>' +
       '</div>';
     }
-    listEl.innerHTML = html;
+    return html;
   }
 
+  function render(){
+    var b = balances();
+    var total = b.account + b.savings + b.cash + b.coins;
+    totalEl.textContent = fmt(total);
+    totalEl.classList.toggle('neg', total < 0);
+
+    [[bAcc,b.account],[bSav,b.savings],[bCash,b.cash],[bCoins,b.coins]].forEach(function(pair){
+      pair[0].textContent = fmt(pair[1]);
+      pair[0].classList.toggle('neg', pair[1] < 0);
+    });
+
+    var sortedAll = state.txs.slice().sort(function(a,b){ return (b.ts||0)-(a.ts||0); });
+    if(!sortedAll.length){
+      recentListEl.innerHTML = '<div class="empty">No transactions yet.</div>';
+    } else {
+      recentListEl.innerHTML = buildTxHtml(sortedAll.slice(0, 5));
+    }
+
+    var filtered = getFilteredTxs();
+    var sIn=0, sOut=0;
+    for(var i=0;i<filtered.length;i++){
+      var t = filtered[i];
+      if(t.type === 'in') sIn += t.cents; 
+      else if(t.type === 'out') sOut += t.cents;
+    }
+
+    var max = Math.max(sIn, sOut, 1);
+    fillIn.style.width = (sIn/max*100)+'%';
+    fillOut.style.width = (sOut/max*100)+'%';
+    numIn.textContent = fmt(sIn);
+    numOut.textContent = fmt(sOut);
+
+    var net = sIn - sOut;
+    netEl.textContent = (net > 0 ? '+' : '') + fmt(net);
+    netEl.classList.toggle('neg', net < 0);
+
+    txCountEl.textContent = filtered.length + (filtered.length === 1 ? ' item' : ' items');
+    if(!filtered.length){
+      listEl.innerHTML = '<div class="empty">No transactions for this period.</div>';
+    } else {
+      listEl.innerHTML = buildTxHtml(filtered);
+    }
+
+    curSym.textContent = state.cur;
+    
+    if(curType === 'in'){ 
+      addBtn.textContent = 'ADD MONEY IN (+)'; 
+      addBtn.setAttribute('data-current', 'in');
+      addHint.textContent = 'Adds to selected account'; 
+    }
+    else if(curType === 'out'){ 
+      addBtn.textContent = 'TAKE MONEY OUT (-)'; 
+      addBtn.setAttribute('data-current', 'out');
+      addHint.textContent = 'Subtracts from selected account'; 
+    }
+    else { 
+      addBtn.textContent = 'TRANSFER FUNDS'; 
+      addBtn.setAttribute('data-current', 'transfer');
+      addHint.textContent = 'Moves money between accounts'; 
+    }
+
+    standardMethod.style.display = curType === 'transfer' ? 'none' : 'block';
+    transferMethod.style.display = curType === 'transfer' ? 'block' : 'none';
+  }
+
+  /* Event Listeners */
   typeSeg.addEventListener('click', function(e){
     var btn = e.target.closest('button[data-type]');
     if(!btn) return;
@@ -453,22 +656,17 @@ input[type=number]{-moz-appearance:textfield}
     var cents = parseAmt(amountEl.value);
     if(cents === null) { amountEl.focus(); return; }
     
-    // Safety check for removing more money than an account has
     if(curType === 'out'){
       var b = balances();
       if(b[methodSelect.value] < cents){
-        if(!confirm("Warning: This will make your " + methodSelect.value + " balance negative.\n\nAre you sure?")) {
-          return;
-        }
+        if(!confirm("Warning: This will make your " + methodSelect.value + " balance negative.\n\nAre you sure?")) return;
       }
     }
     if(curType === 'transfer'){
       var b2 = balances();
       if(fromSelect.value === toSelect.value) { alert("Cannot transfer to the same location."); return; }
       if(b2[fromSelect.value] < cents){
-        if(!confirm("Warning: You don't have enough in " + fromSelect.value + " to transfer this amount. It will go negative.\n\nAre you sure?")) {
-          return;
-        }
+        if(!confirm("Warning: You don't have enough in " + fromSelect.value + " to transfer this amount. It will go negative.\n\nAre you sure?")) return;
       }
     }
     
@@ -496,7 +694,7 @@ input[type=number]{-moz-appearance:textfield}
     amountEl.focus();
   });
 
-  listEl.addEventListener('click', function(e){
+  function handleDelete(e){
     var btn = e.target.closest('.del');
     if(!btn) return;
     var id = btn.dataset.id;
@@ -505,21 +703,36 @@ input[type=number]{-moz-appearance:textfield}
       save();
       render();
     }
+  }
+  listEl.addEventListener('click', handleDelete);
+  recentListEl.addEventListener('click', handleDelete);
+
+  /* Date Steppers */
+  function shiftDateInput(el, n){
+    var p = el.value.split('-').map(Number);
+    var dt = new Date(p[0], p[1]-1, p[2] + n);
+    el.value = toDateStr(dt);
+  }
+  dayEl.addEventListener('change', function(){ if(!dayEl.value) dayEl.value = todayStr(); });
+  $('prev').addEventListener('click', function(){ shiftDateInput(dayEl, -1); });
+  $('next').addEventListener('click', function(){ shiftDateInput(dayEl, 1); });
+
+  txDayEl.addEventListener('change', function(){ if(!txDayEl.value) txDayEl.value = todayStr(); render(); });
+  $('txPrev').addEventListener('click', function(){ shiftDateInput(txDayEl, -1); render(); });
+  $('txNext').addEventListener('click', function(){ shiftDateInput(txDayEl, 1); render(); });
+
+  /* Currency */
+  curInput.addEventListener('change', function(){
+    state.cur = curInput.value.trim() || '$';
+    curInput.value = state.cur;
+    save();
+    render();
   });
 
-  dayEl.addEventListener('change', function(){ if(!dayEl.value) dayEl.value = todayStr(); render(); });
-  function shiftDay(n){
-    var p = dayEl.value.split('-').map(Number);
-    var dt = new Date(p[0], p[1]-1, p[2] + n);
-    dayEl.value = toDateStr(dt); render();
-  }
-  $('prev').addEventListener('click', function(){ shiftDay(-1); });
-  $('next').addEventListener('click', function(){ shiftDay(1); });
-  curInput.addEventListener('change', function(){ state.cur = curInput.value.trim() || '$'; curInput.value = state.cur; save(); render(); });
-
+  /* Import / Export */
   $('exportBtnCsv').addEventListener('click', function(){
     var filtered = getFilteredTxs();
-    if(!filtered.length){ alert("No data in current view to export."); return; }
+    if(!filtered.length){ alert("No data in current Transactions filter to export."); return; }
     
     var csv = "\uFEFFDate,Type,From/Account,To/Account,Amount,Note\n";
     filtered.forEach(function(t){
@@ -543,6 +756,7 @@ input[type=number]{-moz-appearance:textfield}
     var a = document.createElement('a'); a.href = url; a.download = 'ledger-backup.json';
     document.body.appendChild(a); a.click(); document.body.removeChild(a);
   });
+
   $('importBtn').addEventListener('click', function(){ $('fileInput').click(); });
   $('fileInput').addEventListener('change', function(e){
     var f = e.target.files && e.target.files[0]; if(!f) return;
@@ -554,24 +768,53 @@ input[type=number]{-moz-appearance:textfield}
         if(confirm('Replace ALL current data with this backup?')) {
           state.txs = data.txs; state.cur = data.cur || '$';
           curInput.value = state.cur; save(); render();
+          alert('Backup restored successfully.');
         }
       }catch(err){ alert('Invalid backup file.'); }
     };
     r.readAsText(f); e.target.value = '';
   });
 
-  function getSyncCreds(){
+  /* Cloud Sync Logic (Persistent & Auto-Sync) */
+  function saveCredsToStorage(silent){
     var tok = $('ghToken').value.trim();
     var gid = $('ghGistId').value.trim();
-    if(!tok || !gid){ alert('Enter both Token and Gist ID.'); return null; }
+    if(!tok || !gid){
+      if(!silent) alert('Enter both Token and Gist ID.');
+      return null;
+    }
     localStorage.setItem('ledger_token', tok);
     localStorage.setItem('ledger_gist', gid);
-    return { tok, gid };
+    return { tok: tok, gid: gid };
   }
 
-  $('btnPush').addEventListener('click', function(){
-    var creds = getSyncCreds(); if(!creds) return;
-    syncHint.textContent = "Uploading...";
+  $('btnSaveCreds').addEventListener('click', function(){
+    if(saveCredsToStorage(false)){
+      syncHint.textContent = "Credentials saved locally! ✅";
+    }
+  });
+
+  $('autoSyncToggle').addEventListener('change', function(e){
+    var enabled = e.target.checked;
+    if(enabled && !saveCredsToStorage(false)){
+      e.target.checked = false;
+      return;
+    }
+    localStorage.setItem('ledger_autosync', enabled ? 'true' : 'false');
+    syncHint.textContent = enabled ? "Auto-Sync enabled ✅" : "Auto-Sync disabled";
+    if(enabled) pushToCloud(true);
+  });
+
+  function pushToCloud(isSilent){
+    var creds = saveCredsToStorage(isSilent);
+    if(!creds) return;
+    if(!navigator.onLine){
+      headerStatus.textContent = "Offline";
+      if(!isSilent) syncHint.textContent = "Offline — will sync when online.";
+      return;
+    }
+    headerStatus.textContent = "Syncing…";
+    if(!isSilent) syncHint.textContent = "Uploading...";
     
     var payload = { files: { "ledger.json": { content: JSON.stringify(state, null, 2) } } };
     
@@ -581,35 +824,87 @@ input[type=number]{-moz-appearance:textfield}
       body: JSON.stringify(payload)
     }).then(function(r){ 
       if(!r.ok) throw new Error('Auth failed'); 
-      syncHint.textContent = "Uploaded successfully! ✅"; 
-    }).catch(function(){ syncHint.textContent = "Upload failed. Check token/gist. ❌"; });
-  });
+      headerStatus.textContent = "Synced";
+      if(!isSilent) syncHint.textContent = "Uploaded successfully! ✅"; 
+    }).catch(function(){ 
+      headerStatus.textContent = "Sync Error";
+      if(!isSilent) syncHint.textContent = "Upload failed. Check token/gist. ❌"; 
+    });
+  }
 
-  $('btnPull').addEventListener('click', function(){
-    var creds = getSyncCreds(); if(!creds) return;
-    syncHint.textContent = "Loading...";
+  function pullFromCloud(isSilent){
+    var creds = saveCredsToStorage(isSilent);
+    if(!creds) return;
+    if(!navigator.onLine){
+      headerStatus.textContent = "Offline";
+      return;
+    }
+    headerStatus.textContent = "Checking…";
+    if(!isSilent) syncHint.textContent = "Loading...";
     
     fetch(`https://api.github.com/gists/${creds.gid}`, {
       headers: { 'Authorization': `token ${creds.tok}`, 'Accept': 'application/vnd.github.v3+json' }
-    }).then(function(r){ return r.json(); }).then(function(data){
+    }).then(function(r){ 
+      if(!r.ok) throw new Error('Fetch failed');
+      return r.json(); 
+    }).then(function(data){
       if(data.files && data.files['ledger.json']){
         var remoteState = JSON.parse(data.files['ledger.json'].content);
-        if(remoteState.txs && confirm("Overwrite local data with cloud data?")){
-          state = remoteState;
-          curInput.value = state.cur || '$';
-          save(); render();
-          syncHint.textContent = "Loaded successfully! ✅";
-        } else {
-          syncHint.textContent = "Cancelled or empty cloud.";
+        if(remoteState && Array.isArray(remoteState.txs)){
+          if(isSilent){
+            if((remoteState.updatedAt || 0) > (state.updatedAt || 0) || state.txs.length === 0){
+              state = remoteState;
+              curInput.value = state.cur || '$';
+              save(true);
+              render();
+            }
+            headerStatus.textContent = "Synced";
+          } else if(confirm("Overwrite local data with cloud data?")){
+            state = remoteState;
+            curInput.value = state.cur || '$';
+            save(true);
+            render();
+            headerStatus.textContent = "Synced";
+            syncHint.textContent = "Loaded successfully! ✅";
+          } else {
+            headerStatus.textContent = "Local";
+            syncHint.textContent = "Cancelled.";
+          }
         }
       } else {
-        syncHint.textContent = "Could not find ledger.json in Gist.";
+        headerStatus.textContent = "Local";
+        if(!isSilent) syncHint.textContent = "Could not find ledger.json in Gist.";
       }
-    }).catch(function(){ syncHint.textContent = "Load failed. Check token/gist. ❌"; });
-  });
+    }).catch(function(){ 
+      headerStatus.textContent = "Sync Error";
+      if(!isSilent) syncHint.textContent = "Load failed. Check token/gist. ❌"; 
+    });
+  }
+
+  $('btnPush').addEventListener('click', function(){ pushToCloud(false); });
+  $('btnPull').addEventListener('click', function(){ pullFromCloud(false); });
+
+  /* Online / Offline Status & Auto-Sync on Startup */
+  function updateOnlineStatus(){
+    if(!navigator.onLine){
+      headerStatus.textContent = "Offline";
+    } else if(localStorage.getItem('ledger_autosync') === 'true'){
+      pullFromCloud(true);
+    } else {
+      headerStatus.textContent = "Local";
+    }
+  }
+  window.addEventListener('online', updateOnlineStatus);
+  window.addEventListener('offline', updateOnlineStatus);
+
+  /* Register Dedicated Service Worker */
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('./sw.js').catch(function () {});
+  }
 
   curInput.value = state.cur;
   render();
+  updateOnlineStatus();
 })();
 </script>
 </body>
