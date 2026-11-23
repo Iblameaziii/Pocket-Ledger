@@ -2,7 +2,6 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<!-- Disables double-tap zoom and pinch-to-zoom -->
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <meta name="theme-color" content="#0e1014">
 <meta name="mobile-web-app-capable" content="yes">
@@ -30,7 +29,6 @@ body{
 .lbl{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;font-weight:600}
 button, input, select { touch-action: manipulation; }
 
-/* ---- top / balances ---- */
 .top{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:16px;margin-bottom:14px}
 .big{font-size:38px;font-weight:800;letter-spacing:-1.5px;line-height:1.1;margin-top:2px;font-variant-numeric:tabular-nums}
 .cards{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:14px}
@@ -39,36 +37,20 @@ button, input, select { touch-action: manipulation; }
 .card .val{font-size:13px;font-weight:700;margin-top:3px;font-variant-numeric:tabular-nums;overflow:hidden;text-overflow:ellipsis}
 .neg{color:var(--out)!important}
 
-/* ---- date nav & filters ---- */
 .daybar{display:flex;gap:6px;align-items:center;margin-bottom:10px}
-.daybar .nav{
-  width:36px;height:42px;flex:none;border:1px solid var(--line);background:var(--panel);
-  color:var(--txt);border-radius:11px;font-size:20px;line-height:1;cursor:pointer
-}
+.daybar .nav{width:36px;height:42px;flex:none;border:1px solid var(--line);background:var(--panel);color:var(--txt);border-radius:11px;font-size:20px;line-height:1;cursor:pointer}
 .daybar .nav:active{background:var(--panel2)}
-#day{
-  flex:1;min-width:0;background:var(--panel);border:1px solid var(--line);color:var(--txt);
-  border-radius:11px;padding:10px 6px;font:inherit;font-size:14px;font-weight:600;outline:none;
-  -webkit-appearance:none;appearance:none;text-align:center;
-}
+#day{flex:1;min-width:0;background:var(--panel);border:1px solid var(--line);color:var(--txt);border-radius:11px;padding:10px 6px;font:inherit;font-size:14px;font-weight:600;outline:none;-webkit-appearance:none;appearance:none;text-align:center;}
 .filters{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;margin-bottom:10px;scrollbar-width:none}
 .filters::-webkit-scrollbar{display:none}
-.filters button{
-  flex:none;background:var(--panel);border:1px solid var(--line);color:var(--muted);
-  padding:8px 14px;border-radius:99px;font:inherit;font-size:13px;font-weight:600;cursor:pointer
-}
+.filters button{flex:none;background:var(--panel);border:1px solid var(--line);color:var(--muted);padding:8px 14px;border-radius:99px;font:inherit;font-size:13px;font-weight:600;cursor:pointer}
 .filters button.active{background:var(--txt);color:var(--bg);border-color:var(--txt)}
 .custom-range{display:none;gap:8px;margin-bottom:10px}
 .custom-range.show{display:flex}
-.custom-range input{
-  flex:1;min-width:0;background:var(--panel);border:1px solid var(--line);color:var(--txt);
-  border-radius:10px;padding:8px;font:inherit;font-size:14px;outline:none;
-}
+.custom-range input{flex:1;min-width:0;background:var(--panel);border:1px solid var(--line);color:var(--txt);border-radius:10px;padding:8px;font:inherit;font-size:14px;outline:none;}
 
-/* ---- panel ---- */
 .panel{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:14px;margin-bottom:14px}
 
-/* ---- bars ---- */
 .row{display:flex;align-items:center;gap:10px;margin-bottom:10px}
 .pill{width:56px;flex:none;text-align:center;font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding:4px 0;border-radius:6px}
 .pill.in{background:rgba(47,191,113,.15);color:#5fe0a0}
@@ -81,18 +63,13 @@ button, input, select { touch-action: manipulation; }
 .netrow{display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--line);margin-top:12px;padding-top:11px;font-size:14px;color:var(--muted);font-weight:600}
 .netrow strong{font-size:17px;font-variant-numeric:tabular-nums}
 
-/* ---- form ---- */
 .seg{display:flex;background:var(--panel2);border-radius:12px;padding:4px;gap:4px;margin-bottom:10px}
 .seg button{flex:1;border:0;background:transparent;color:var(--muted);padding:10px 4px;border-radius:9px;font:inherit;font-size:14px;font-weight:600;cursor:pointer;transition:.15s}
 .seg button.active{background:var(--panel);color:var(--txt);box-shadow:0 1px 4px rgba(0,0,0,.45)}
 #typeSeg button.active[data-type="in"]{background:rgba(47,191,113,.18);color:#5fe0a0;box-shadow:none}
 #typeSeg button.active[data-type="out"]{background:rgba(240,87,94,.18);color:#ff8a8f;box-shadow:none}
 #typeSeg button.active[data-type="transfer"]{background:rgba(200,140,255,.18);color:var(--transfer);box-shadow:none}
-select.method-select{
-  width:100%;background:var(--panel2);border:0;color:var(--txt);border-radius:12px;
-  padding:12px 14px;font:inherit;font-size:15px;font-weight:600;outline:none;margin-bottom:10px;
-  -webkit-appearance:none;appearance:none;
-}
+select.method-select{width:100%;background:var(--panel2);border:0;color:var(--txt);border-radius:12px;padding:12px 14px;font:inherit;font-size:15px;font-weight:600;outline:none;margin-bottom:10px;-webkit-appearance:none;appearance:none;}
 .amountrow{display:flex;align-items:center;background:var(--panel2);border-radius:12px;padding:0 14px;margin-bottom:10px}
 .amountrow .cur{color:var(--muted);font-size:20px;font-weight:700}
 .amountrow input{flex:1;min-width:0;border:0;background:transparent;color:var(--txt);font:inherit;font-size:27px;font-weight:700;padding:11px 8px;outline:none;font-variant-numeric:tabular-nums}
@@ -105,7 +82,6 @@ input[type=number]{-moz-appearance:textfield}
 .primary.transfer{background:var(--transfer); color:#0e1014}
 .hint{text-align:center;font-size:12px;color:var(--muted);margin-top:9px}
 
-/* ---- list ---- */
 .listhead{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:20px 2px 10px}
 .listhead h2{margin:0;font-size:15px;font-weight:700;letter-spacing:.02em}
 .tx{display:flex;align-items:center;gap:11px;padding:11px 12px;background:var(--panel);border:1px solid var(--line);border-radius:13px;margin-bottom:8px}
@@ -119,7 +95,6 @@ input[type=number]{-moz-appearance:textfield}
 .del{width:30px;height:30px;flex:none;border:0;border-radius:50%;background:transparent;color:#5c6675;font-size:19px;line-height:1;cursor:pointer;padding:0}
 .empty{text-align:center;color:var(--muted);font-size:14px;padding:26px 10px}
 
-/* ---- footer & sync ---- */
 .footer{margin-top:26px;padding-top:16px;border-top:1px solid var(--line);display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:center;font-size:13px;color:var(--muted)}
 .footer button{background:var(--panel);border:1px solid var(--line);color:var(--muted);border-radius:9px;padding:7px 12px;font:inherit;font-size:13px;font-weight:600;cursor:pointer}
 .footer button:active{background:var(--panel2);color:var(--txt)}
@@ -259,7 +234,6 @@ input[type=number]{-moz-appearance:textfield}
         }
       }
     }catch(e){}
-    // Load sync keys
     var tok = localStorage.getItem('ledger_token');
     var gid = localStorage.getItem('ledger_gist');
     if(tok) document.getElementById('ghToken').value = tok;
@@ -303,14 +277,9 @@ input[type=number]{-moz-appearance:textfield}
   endDateEl.value = todayStr();
 
   function getFilteredTxs() {
-    var now = new Date(dayEl.value + 'T12:00:00'); // Use selected date as reference
-    var start = new Date(now), end = new Date(now);
+    if (scope === 'all') return state.txs.slice().sort(function(a,b){ return (b.ts||0)-(a.ts||0); });
     
-    if (scope === 'day') { start.setDate(now.getDate()); end.setDate(now.getDate()); }
-    else if (scope === 'week') { start.setDate(now.getDate() - now.getDay()); end.setDate(start.getDate() + 6); }
-    else if (scope === 'month') { start.setDate(1); end.setMonth(now.getMonth()+1, 0); }
-    else if (scope === 'year') { start.setMonth(0,1); end.setMonth(11,31); }
-    else if (scope === 'custom') { 
+    if (scope === 'custom') { 
       var s = new Date(startDateEl.value + 'T00:00:00');
       var e = new Date(endDateEl.value + 'T23:59:59');
       if (isNaN(s) || isNaN(e)) return state.txs;
@@ -319,11 +288,30 @@ input[type=number]{-moz-appearance:textfield}
         return d >= s && d <= e;
       }).sort(function(a,b){ return (b.ts||0)-(a.ts||0); });
     }
-    else return state.txs.slice().sort(function(a,b){ return (b.ts||0)-(a.ts||0); });
 
+    // Safe Safari date parsing
+    var parts = dayEl.value.split('-');
+    var now = new Date(parts[0], parts[1]-1, parts[2]);
+    var start = new Date(now);
+    var end = new Date(now);
+
+    if (scope === 'day') { 
+      start = new Date(now); end = new Date(now); 
+    } else if (scope === 'week') { 
+      start.setDate(now.getDate() - now.getDay()); 
+      end.setDate(start.getDate() + 6); 
+    } else if (scope === 'month') { 
+      start.setDate(1); 
+      end.setMonth(now.getMonth()+1, 0); 
+    } else if (scope === 'year') { 
+      start.setMonth(0,1); 
+      end.setMonth(11,31); 
+    }
+    
     var sStr = toDateStr(start), eStr = toDateStr(end);
-    return state.txs.filter(function(t){ return t.date >= sStr && t.date <= eStr; })
-                    .sort(function(a,b){ return (b.ts||0)-(a.ts||0); });
+    return state.txs.filter(function(t){ 
+      return t.date >= sStr && t.date <= eStr; 
+    }).sort(function(a,b){ return (b.ts||0)-(a.ts||0); });
   }
 
   function balances(){
@@ -371,7 +359,6 @@ input[type=number]{-moz-appearance:textfield}
 
     curSym.textContent = state.cur;
     
-    // UI Form logic
     addBtn.className = 'primary';
     if(curType === 'in'){ addBtn.textContent = 'Add Money In'; addHint.textContent = 'Adds to selected method'; }
     else if(curType === 'out'){ addBtn.classList.add('out'); addBtn.textContent = 'Add Money Out'; addHint.textContent = 'Subtracts from selected method'; }
@@ -397,10 +384,13 @@ input[type=number]{-moz-appearance:textfield}
       var sign = isIn ? '+' : (isOut ? '−' : '⇄');
       
       var meta = '';
+      // SAFETY CHECK: Added fallback for old data that might not have a method
+      var safeMethod = t.method || 'account'; 
       if(t.type === 'transfer'){
-        meta = 'Transfer: ' + t.method.charAt(0).toUpperCase() + t.method.slice(1) + ' → ' + t.toMethod.charAt(0).toUpperCase() + t.toMethod.slice(1);
+        var safeTo = t.toMethod || 'savings';
+        meta = 'Transfer: ' + safeMethod.charAt(0).toUpperCase() + safeMethod.slice(1) + ' → ' + safeTo.charAt(0).toUpperCase() + safeTo.slice(1);
       } else {
-        meta = t.method.charAt(0).toUpperCase() + t.method.slice(1);
+        meta = safeMethod.charAt(0).toUpperCase() + safeMethod.slice(1);
       }
 
       html += '<div class="tx">' +
@@ -486,7 +476,6 @@ input[type=number]{-moz-appearance:textfield}
   $('next').addEventListener('click', function(){ shiftDay(1); });
   curInput.addEventListener('change', function(){ state.cur = curInput.value.trim() || '$'; curInput.value = state.cur; save(); render(); });
 
-  // EXPORT CSV (EXCEL)
   $('exportBtnCsv').addEventListener('click', function(){
     var filtered = getFilteredTxs();
     if(!filtered.length){ alert("No data in current view to export."); return; }
@@ -494,7 +483,7 @@ input[type=number]{-moz-appearance:textfield}
     var csv = "\uFEFFDate,Type,From/Account,To/Account,Amount,Note\n";
     filtered.forEach(function(t){
       var amt = (t.cents/100).toFixed(2);
-      var from = t.method;
+      var from = t.method || 'account';
       var to = t.toMethod || '';
       var note = '"' + (t.note||'').replace(/"/g, '""') + '"';
       csv += `${t.date},${t.type},${from},${to},${amt},${note}\n`;
@@ -507,7 +496,6 @@ input[type=number]{-moz-appearance:textfield}
     document.body.appendChild(a); a.click(); document.body.removeChild(a);
   });
 
-  // JSON EXPORT/IMPORT
   $('exportBtn').addEventListener('click', function(){
     var blob = new Blob([JSON.stringify(state, null, 2)], {type:'application/json'});
     var url = URL.createObjectURL(blob);
@@ -531,7 +519,6 @@ input[type=number]{-moz-appearance:textfield}
     r.readAsText(f); e.target.value = '';
   });
 
-  // CLOUD SYNC (GITHUB GIST)
   function getSyncCreds(){
     var tok = $('ghToken').value.trim();
     var gid = $('ghGistId').value.trim();
