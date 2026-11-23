@@ -34,6 +34,61 @@ body{
 .lbl{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;font-weight:600}
 button, input, select { touch-action: manipulation; }
 
+/* ---------- accounting splash screen ---------- */
+#splash{
+  position:fixed;inset:0;z-index:1200;background:var(--bg);
+  display:flex;align-items:center;justify-content:center;padding:20px;
+  opacity:1;transition:opacity .45s ease;
+}
+#splash.gone{opacity:0;pointer-events:none;}
+#splash.hide{display:none;}
+.splash-inner{text-align:center;display:flex;flex-direction:column;align-items:center;}
+.splash-logo{
+  font-size:clamp(2.6rem,12vw,3.8rem);font-weight:800;letter-spacing:-1.5px;
+  line-height:1.05;color:var(--txt);text-align:center;will-change:transform,opacity;
+}
+#splash .splash-logo span{
+  display:inline-block;opacity:0;
+  animation:spell .4s cubic-bezier(.2,.7,.3,1) forwards;
+}
+#splash .splash-logo span:nth-child(1){animation-delay:.10s}
+#splash .splash-logo span:nth-child(2){animation-delay:.22s}
+#splash .splash-logo span:nth-child(3){animation-delay:.34s}
+#splash .splash-logo span:nth-child(4){animation-delay:.46s}
+#splash .splash-logo span:nth-child(5){animation-delay:.58s}
+#splash .splash-logo span:nth-child(6){animation-delay:.70s}
+@keyframes spell{
+  from{opacity:0;transform:translateY(8px) scale(.88)}
+  to{opacity:1;transform:none}
+}
+#splash .dots,#splash .splash-note{
+  opacity:0;animation:fadein .45s ease .82s forwards;
+}
+@keyframes fadein{to{opacity:1}}
+.dots{
+  display:flex;gap:10px;justify-content:center;align-items:center;
+  margin-top:26px;pointer-events:none;will-change:opacity;
+}
+.dots i{
+  width:10px;height:10px;border-radius:50%;background:var(--txt);
+  animation:bounce 1s infinite;
+}
+.dots i:nth-child(2){animation-delay:.15s}
+.dots i:nth-child(3){animation-delay:.3s}
+@keyframes bounce{
+  0%,80%,100%{transform:translateY(0);opacity:.35}
+  40%{transform:translateY(-9px);opacity:1}
+}
+.splash-note{
+  margin-top:16px;text-align:center;font-size:13px;font-weight:600;
+  color:var(--muted);letter-spacing:.02em;
+}
+@media(prefers-reduced-motion:reduce){
+  #splash{transition:none}
+  .dots i{animation:none;opacity:.8}
+  #splash .splash-logo span,#splash .dots,#splash .splash-note{animation:none;opacity:1;transform:none}
+}
+
 /* Header & Hamburger */
 .header{
   display:flex;align-items:center;justify-content:space-between;
@@ -185,6 +240,17 @@ input[type=number]{-moz-appearance:textfield}
 </style>
 </head>
 <body>
+
+<!-- Accounting Splash Screen -->
+<div id="splash" role="status" aria-live="polite">
+  <div class="splash-inner">
+    <div class="splash-logo" role="img" aria-label="Ledger">
+      <span aria-hidden="true">L</span><span aria-hidden="true">e</span><span aria-hidden="true">d</span><span aria-hidden="true">g</span><span aria-hidden="true">e</span><span aria-hidden="true">r</span>
+    </div>
+    <div class="dots" aria-hidden="true"><i></i><i></i><i></i></div>
+    <p class="splash-note" id="splashNote">Reconciling your balances&hellip;</p>
+  </div>
+</div>
 
 <!-- Sidebar Backdrop & Drawer -->
 <div class="drawer-backdrop" id="drawerBackdrop"></div>
@@ -384,6 +450,33 @@ input[type=number]{-moz-appearance:textfield}
 <script>
 (function(){
   'use strict';
+
+  /* Splash Screen Controller */
+  var splashShownAt = Date.now();
+  var splashNotes = [
+    "Reconciling your balances\u2026",
+    "Tallying debits and credits\u2026",
+    "Opening the general ledger\u2026"
+  ];
+  var splashNoteEl = document.getElementById('splashNote');
+  if (splashNoteEl) {
+    splashNoteEl.textContent = splashNotes[Math.floor(Math.random() * splashNotes.length)];
+  }
+
+  function hideSplash(){
+    var s = document.getElementById('splash');
+    if(!s || s.dataset.done) return;
+    s.dataset.done = '1';
+    var wait = Math.max(0, 1200 - (Date.now() - splashShownAt));
+    setTimeout(function(){
+      s.classList.add('gone');
+      setTimeout(function(){
+        s.classList.add('hide');
+      }, 460);
+    }, wait);
+  }
+  window.addEventListener('load', hideSplash);
+  setTimeout(hideSplash, 2500);
 
   var KEY = 'pocketledger.v1';
   var state = { txs: [], cur: '$', updatedAt: 0 };
