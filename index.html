@@ -167,7 +167,7 @@ button, input, select { touch-action: manipulation; }
 .view{display:none;}
 .view.active{display:block;}
 
-/* Balance Top Card & Casino Digit Reels */
+/* Balance Top Card */
 .top{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:16px;margin-bottom:14px}
 .big{font-size:38px;font-weight:800;letter-spacing:-1.5px;line-height:1.1;margin-top:2px;font-variant-numeric:tabular-nums}
 .cards{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:14px}
@@ -175,17 +175,6 @@ button, input, select { touch-action: manipulation; }
 .card .lbl{font-size:10px}
 .card .val{font-size:13px;font-weight:700;margin-top:3px;font-variant-numeric:tabular-nums;overflow:hidden;text-overflow:ellipsis;color:var(--txt)}
 .neg{color:var(--muted)!important; text-decoration: line-through;}
-
-.slot-reel{
-  display:inline-block;
-  transition:transform .14s cubic-bezier(.22,1,.36,1), opacity .14s ease;
-}
-.slot-reel.tick{
-  transform:translateY(-2px);
-}
-.slot-reel.locked{
-  transform:translateY(0);
-}
 
 /* Date & Filters */
 .daybar{display:flex;gap:6px;align-items:center;margin-bottom:10px}
@@ -605,92 +594,6 @@ input[type=number]{-moz-appearance:textfield}
   startDateEl.value = todayStr();
   endDateEl.value = todayStr();
 
-  /* True Digit-by-Digit Casino Reel Spinner */
-  var reelIntervals = {};
-  var prefersReducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-  function setStaticBalanceElement(el, targetCents){
-    if(!el) return;
-    var id = el.id;
-    if(reelIntervals[id]){
-      reelIntervals[id].forEach(clearInterval);
-      delete reelIntervals[id];
-    }
-    el.textContent = fmt(targetCents);
-    el.classList.toggle('neg', targetCents < 0);
-  }
-
-  function spinBalanceElement(el, targetCents){
-    if(!el) return;
-    var id = el.id || ('reel_' + Math.random());
-    if(reelIntervals[id]){
-      reelIntervals[id].forEach(clearInterval);
-      delete reelIntervals[id];
-    }
-    reelIntervals[id] = [];
-
-    var finalText = fmt(targetCents);
-    var isNeg = targetCents < 0;
-    el.classList.toggle('neg', isNeg);
-
-    if(prefersReducedMotion){
-      el.textContent = finalText;
-      return;
-    }
-
-    // Build individual reels for each character so digits spin 0-9 and lock onto the exact target char
-    el.innerHTML = '';
-    var chars = finalText.split('');
-    var digitIndex = 0;
-
-    chars.forEach(function(ch){
-      var span = document.createElement('span');
-      span.className = 'slot-reel';
-
-      if(/[0-9]/.test(ch)){
-        var targetDigit = parseInt(ch, 10);
-        // Start from a visible spinning digit
-        var currentDigit = (targetDigit + 3 + (digitIndex % 4)) % 10;
-        span.textContent = String(currentDigit);
-        span.classList.add('tick');
-        el.appendChild(span);
-
-        // Stagger stop times left-to-right; hundredths digit (last digit) spins longest (~780ms)
-        var stopAfterMs = 280 + digitIndex * 95;
-        var startedAt = Date.now();
-
-        var timer = setInterval(function(){
-          if(Date.now() - startedAt >= stopAfterMs){
-            clearInterval(timer);
-            span.textContent = String(targetDigit);
-            span.classList.remove('tick');
-            span.classList.add('locked');
-            return;
-          }
-          currentDigit = (currentDigit + 1) % 10;
-          span.textContent = String(currentDigit);
-        }, 55);
-
-        reelIntervals[id].push(timer);
-        digitIndex++;
-      } else {
-        // Currency symbol, decimal point, or minus sign stays steady
-        span.textContent = ch;
-        el.appendChild(span);
-      }
-    });
-  }
-
-  function triggerBalanceSlotAnimation(){
-    var b = balances();
-    var total = b.account + b.savings + b.cash + b.coins;
-    spinBalanceElement(totalEl, total);
-    spinBalanceElement(bAcc, b.account);
-    spinBalanceElement(bSav, b.savings);
-    spinBalanceElement(bCash, b.cash);
-    spinBalanceElement(bCoins, b.coins);
-  }
-
   /* Navigation & Drawer Logic */
   var drawer = $('drawer'), backdrop = $('drawerBackdrop'), pageTitle = $('pageTitle');
   var viewTitles = {
@@ -716,7 +619,7 @@ input[type=number]{-moz-appearance:textfield}
     if(target) target.classList.add('active');
     pageTitle.textContent = viewTitles[viewName] || 'Pocket Ledger';
     closeDrawer();
-    render(false);
+    render();
   }
 
   document.querySelectorAll('.nav-item').forEach(function(btn){
@@ -807,19 +710,16 @@ input[type=number]{-moz-appearance:textfield}
     return html;
   }
 
-  function render(animateBalances){
+  function render(){
     var b = balances();
     var total = b.account + b.savings + b.cash + b.coins;
+    totalEl.textContent = fmt(total);
+    totalEl.classList.toggle('neg', total < 0);
 
-    if(animateBalances){
-      triggerBalanceSlotAnimation();
-    } else {
-      setStaticBalanceElement(totalEl, total);
-      setStaticBalanceElement(bAcc, b.account);
-      setStaticBalanceElement(bSav, b.savings);
-      setStaticBalanceElement(bCash, b.cash);
-      setStaticBalanceElement(bCoins, b.coins);
-    }
+    [[bAcc,b.account],[bSav,b.savings],[bCash,b.cash],[bCoins,b.coins]].forEach(function(pair){
+      pair[0].textContent = fmt(pair[1]);
+      pair[0].classList.toggle('neg', pair[1] < 0);
+    });
 
     var sortedAll = state.txs.slice().sort(function(a,b){ return (b.ts||0)-(a.ts||0); });
     if(!sortedAll.length){
@@ -881,7 +781,7 @@ input[type=number]{-moz-appearance:textfield}
     if(!btn) return;
     curType = btn.dataset.type;
     Array.prototype.forEach.call(typeSeg.children, function(b){ b.classList.toggle('active', b === btn); });
-    render(false);
+    render();
   });
 
   filterSeg.addEventListener('click', function(e){
@@ -890,11 +790,11 @@ input[type=number]{-moz-appearance:textfield}
     scope = btn.dataset.scope;
     Array.prototype.forEach.call(filterSeg.children, function(b){ b.classList.toggle('active', b === btn); });
     customRange.classList.toggle('show', scope === 'custom');
-    render(false);
+    render();
   });
 
-  startDateEl.addEventListener('change', function(){ render(false); });
-  endDateEl.addEventListener('change', function(){ render(false); });
+  startDateEl.addEventListener('change', render);
+  endDateEl.addEventListener('change', render);
 
   addBtn.addEventListener('click', function(){
     var cents = parseAmt(amountEl.value);
@@ -934,7 +834,7 @@ input[type=number]{-moz-appearance:textfield}
     save();
     amountEl.value = '';
     noteEl.value = '';
-    render(false);
+    render();
     amountEl.focus();
   });
 
@@ -945,7 +845,7 @@ input[type=number]{-moz-appearance:textfield}
     if(confirm('Delete this transaction?')){
       state.txs = state.txs.filter(function(t){ return t.id !== id; });
       save();
-      render(false);
+      render();
     }
   }
   listEl.addEventListener('click', handleDelete);
@@ -961,16 +861,16 @@ input[type=number]{-moz-appearance:textfield}
   $('prev').addEventListener('click', function(){ shiftDateInput(dayEl, -1); });
   $('next').addEventListener('click', function(){ shiftDateInput(dayEl, 1); });
 
-  txDayEl.addEventListener('change', function(){ if(!txDayEl.value) txDayEl.value = todayStr(); render(false); });
-  $('txPrev').addEventListener('click', function(){ shiftDateInput(txDayEl, -1); render(false); });
-  $('txNext').addEventListener('click', function(){ shiftDateInput(txDayEl, 1); render(false); });
+  txDayEl.addEventListener('change', function(){ if(!txDayEl.value) txDayEl.value = todayStr(); render(); });
+  $('txPrev').addEventListener('click', function(){ shiftDateInput(txDayEl, -1); render(); });
+  $('txNext').addEventListener('click', function(){ shiftDateInput(txDayEl, 1); render(); });
 
   /* Currency */
   curInput.addEventListener('change', function(){
     state.cur = curInput.value.trim() || '$';
     curInput.value = state.cur;
     save();
-    render(false);
+    render();
   });
 
   /* Import / Export */
@@ -1011,7 +911,7 @@ input[type=number]{-moz-appearance:textfield}
         if(!data || !Array.isArray(data.txs)) throw new Error('bad');
         if(confirm('Replace ALL current data with this backup?')) {
           state.txs = data.txs; state.cur = data.cur || '$';
-          curInput.value = state.cur; save(); render(false);
+          curInput.value = state.cur; save(); render();
           alert('Backup restored successfully.');
         }
       }catch(err){ alert('Invalid backup file.'); }
@@ -1131,7 +1031,7 @@ input[type=number]{-moz-appearance:textfield}
               localStorage.setItem(KEY, JSON.stringify(state));
               curInput.value = state.cur;
               setPendingPush(false);
-              render(false);
+              render();
               headerStatus.textContent = "Synced";
               syncHint.textContent = "Loaded " + state.txs.length + " tx(s)! ✅";
               return true;
@@ -1177,18 +1077,18 @@ input[type=number]{-moz-appearance:textfield}
   $('btnPush').addEventListener('click', function(){ pushToCloud(false); });
   $('btnPull').addEventListener('click', function(){ pullFromCloud(false); });
 
-  /* Refresh Button: Triggers Reel Animation + Syncs */
+  /* Refresh Button: Syncs & Re-renders */
   refreshBtn.addEventListener('click', function(){
     refreshBtn.classList.add('spinning');
-    render(true);
-    var finishRefresh = function(changed){
-      if(changed) render(false);
-      setTimeout(function(){ refreshBtn.classList.remove('spinning'); }, 450);
+    render();
+    var finishRefresh = function(){
+      render();
+      setTimeout(function(){ refreshBtn.classList.remove('spinning'); }, 350);
     };
     if(localStorage.getItem('ledger_autosync') === 'true'){
-      syncNow(true).then(finishRefresh).catch(function(){ finishRefresh(false); });
+      syncNow(true).then(finishRefresh).catch(finishRefresh);
     } else {
-      setTimeout(function(){ finishRefresh(false); }, 650);
+      setTimeout(finishRefresh, 350);
     }
   });
 
@@ -1198,7 +1098,7 @@ input[type=number]{-moz-appearance:textfield}
       headerStatus.textContent = hasPendingPush ? "Offline (Queued)" : "Offline";
     } else if(localStorage.getItem('ledger_autosync') === 'true'){
       syncNow(true).then(function(changed){
-        if(changed) render(false);
+        if(changed) render();
       });
     } else {
       headerStatus.textContent = "Local";
@@ -1213,7 +1113,7 @@ input[type=number]{-moz-appearance:textfield}
   }
 
   curInput.value = state.cur;
-  render(true);
+  render();
   updateOnlineStatus();
 })();
 </script>
