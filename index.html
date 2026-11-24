@@ -32,7 +32,7 @@ body{
   -webkit-text-size-adjust:100%;
 }
 .lbl{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;font-weight:600}
-button, input, select { touch-action: manipulation; }
+button, input, select, textarea { touch-action: manipulation; }
 
 /* ---------- accounting splash screen (2s total) ---------- */
 #splash{
@@ -192,7 +192,7 @@ button, input, select { touch-action: manipulation; }
 .panel{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:14px;margin-bottom:14px}
 
 .row{display:flex;align-items:center;gap:10px;margin-bottom:10px}
-.pill{width:56px;flex:none;text-align:center;font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding:4px 0;border-radius:6px}
+.pill{width:74px;flex:none;text-align:center;font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding:4px 2px;border-radius:6px}
 .pill.in{background:var(--txt);color:var(--bg)}
 .pill.out{border:1px solid var(--txt);color:var(--txt)}
 .track{flex:1;height:11px;background:var(--panel2);border-radius:99px;overflow:hidden;min-width:0}
@@ -218,7 +218,21 @@ select.method-select{width:100%;background:var(--panel2);border:1px solid var(--
 .amountrow input::placeholder{color:#555}
 input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
 input[type=number]{-moz-appearance:textfield}
-#note{width:100%;border:1px solid var(--line);background:var(--panel2);color:var(--txt);border-radius:12px;padding:12px 14px;font:inherit;font-size:16px;outline:none;margin-bottom:10px}
+
+.desc-box{margin-bottom:10px}
+#note{
+  width:100%;border:1px solid var(--line);background:var(--panel2);color:var(--txt);
+  border-radius:12px;padding:11px 14px;font:inherit;font-size:15px;line-height:1.4;
+  outline:none;resize:vertical;min-height:74px;display:block;
+}
+#note:focus{border-color:var(--txt);}
+.word-counter{
+  display:flex;justify-content:space-between;align-items:center;
+  font-size:11px;color:var(--muted);margin-top:4px;padding:0 4px;
+}
+.word-counter.near-limit{color:#e0b458;}
+.word-counter.at-limit{color:#ff7b7b;font-weight:700;}
+
 .primary{width:100%;border:1px solid var(--txt);border-radius:12px;padding:14px;font:inherit;font-size:16px;font-weight:700;cursor:pointer;transition:.15s}
 .primary[data-current="in"]{background:var(--txt);color:var(--bg)}
 .primary[data-current="out"]{background:transparent;color:var(--txt)}
@@ -229,19 +243,66 @@ input[type=number]{-moz-appearance:textfield}
 .listhead{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:14px 2px 10px}
 .listhead h2{margin:0;font-size:15px;font-weight:700;letter-spacing:.02em}
 .link-btn{background:none;border:0;color:var(--txt);font:inherit;font-size:13px;font-weight:600;text-decoration:underline;cursor:pointer;padding:0;}
-.tx{display:flex;align-items:center;gap:11px;padding:11px 12px;background:var(--panel);border:1px solid var(--line);border-radius:13px;margin-bottom:8px}
+
+.tx{
+  display:flex;flex-direction:column;
+  padding:11px 12px;background:var(--panel);border:1px solid var(--line);
+  border-radius:13px;margin-bottom:8px;
+}
+.tx-top{display:flex;align-items:center;gap:11px;width:100%;}
 .dot{width:9px;height:9px;border-radius:50%;flex:none}
 .dot.in{background:var(--txt)}
 .dot.out{border:2px solid var(--txt); background:transparent;}
 .dot.transfer{background:var(--muted)}
 .txmain{flex:1;min-width:0}
-.txnote{font-size:15px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.txnote{font-size:15px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .txmeta{font-size:12px;color:var(--muted);margin-top:1px}
-.txamt{font-size:15px;font-weight:700;font-variant-numeric:tabular-nums;flex:none}
+.txright{display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex:none;}
+.txamt{font-size:15px;font-weight:700;font-variant-numeric:tabular-nums;line-height:1.15;}
 .txamt.in{color:var(--txt)}
 .txamt.out{color:var(--muted)}
 .txamt.transfer{color:var(--txt); font-weight:600}
-.del{width:30px;height:30px;flex:none;border:0;border-radius:50%;background:transparent;color:#5c6675;font-size:19px;line-height:1;cursor:pointer;padding:0}
+
+.details-btn{
+  background:var(--panel2);border:1px solid var(--line);color:var(--muted);
+  border-radius:99px;padding:3px 9px;font:inherit;font-size:11px;font-weight:600;
+  cursor:pointer;display:inline-flex;align-items:center;gap:4px;line-height:1.2;
+  transition:.15s;
+}
+.details-btn:hover{color:var(--txt);border-color:var(--muted);}
+.details-btn.open{background:var(--txt);color:var(--bg);border-color:var(--txt);}
+.details-btn .chev{font-size:9px;transition:transform .2s ease;display:inline-block;}
+.details-btn.open .chev{transform:rotate(180deg);}
+
+.del{width:28px;height:28px;flex:none;border:0;border-radius:50%;background:transparent;color:#5c6675;font-size:19px;line-height:1;cursor:pointer;padding:0}
+.del:hover{color:var(--txt);}
+
+.tx-drawer{
+  display:none;margin-top:10px;padding-top:10px;border-top:1px solid var(--line);
+}
+.tx-drawer.open{display:block;}
+.tx-desc-view{
+  font-size:13.5px;color:var(--txt);line-height:1.5;white-space:pre-wrap;word-break:break-word;
+  background:var(--panel2);border-radius:9px;padding:9px 11px;
+}
+.tx-desc-empty{color:var(--muted);font-style:italic;}
+.tx-drawer-actions{
+  display:flex;justify-content:flex-end;gap:8px;margin-top:8px;
+}
+.tx-mini-btn{
+  background:var(--panel2);border:1px solid var(--line);color:var(--txt);
+  border-radius:8px;padding:5px 11px;font:inherit;font-size:12px;font-weight:600;cursor:pointer;
+}
+.tx-mini-btn.save{background:var(--txt);color:var(--bg);border-color:var(--txt);}
+.tx-edit-area{
+  width:100%;background:var(--panel2);border:1px solid var(--txt);color:var(--txt);
+  border-radius:9px;padding:9px 11px;font:inherit;font-size:13.5px;line-height:1.45;
+  outline:none;resize:vertical;min-height:82px;display:block;
+}
+.tx-edit-footer{
+  display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:7px;
+}
+.tx-edit-count{font-size:11px;color:var(--muted);}
 .empty{text-align:center;color:var(--muted);font-size:14px;padding:26px 10px}
 
 /* Cloud & Import/Export Panels */
@@ -254,6 +315,192 @@ input[type=number]{-moz-appearance:textfield}
 .toggle-row span{font-size:14px;font-weight:600;}
 .toggle-row input[type="checkbox"]{width:20px;height:20px;accent-color:var(--txt);cursor:pointer;}
 .info-box{background:var(--panel2);border-radius:10px;padding:12px;font-size:13px;color:var(--muted);line-height:1.5;margin-top:12px;}
+
+/* ---------- PDF PRINT STATEMENT LAYER (Hidden on screen, active on print) ---------- */
+#pdfPrintRoot{display:none;}
+
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 14mm 12mm 16mm 12mm;
+  }
+  html, body {
+    background: #ffffff !important;
+    color: #111111 !important;
+    max-width: none !important;
+    width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+  #splash, .drawer-backdrop, .drawer, .header, main, section {
+    display: none !important;
+  }
+  #pdfPrintRoot {
+    display: block !important;
+    position: relative;
+    width: 100%;
+    color: #111111;
+  }
+  .pdf-watermark {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) rotate(-32deg);
+    font-size: 74px;
+    font-weight: 900;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: rgba(17, 17, 17, 0.065);
+    white-space: nowrap;
+    pointer-events: none;
+    z-index: 9999;
+    user-select: none;
+  }
+  .pdf-doc {
+    position: relative;
+    z-index: 1;
+  }
+  .pdf-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    border-bottom: 2px solid #111111;
+    padding-bottom: 10px;
+    margin-bottom: 14px;
+  }
+  .pdf-brand {
+    font-size: 22px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    color: #111111;
+  }
+  .pdf-sub {
+    font-size: 11px;
+    color: #555555;
+    margin-top: 2px;
+  }
+  .pdf-meta-right {
+    text-align: right;
+    font-size: 11px;
+    color: #333333;
+    line-height: 1.45;
+  }
+  .pdf-summary-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+  .pdf-sum-card {
+    border: 1px solid #cccccc;
+    background: rgba(248, 248, 248, 0.85);
+    border-radius: 6px;
+    padding: 8px 10px;
+  }
+  .pdf-sum-lbl {
+    font-size: 9.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #555555;
+    font-weight: 700;
+  }
+  .pdf-sum-val {
+    font-size: 14px;
+    font-weight: 800;
+    color: #111111;
+    margin-top: 3px;
+    font-variant-numeric: tabular-nums;
+  }
+  .pdf-acct-bar {
+    display: flex;
+    justify-content: space-between;
+    border: 1px solid #dddddd;
+    background: rgba(250, 250, 250, 0.85);
+    border-radius: 6px;
+    padding: 7px 12px;
+    margin-bottom: 14px;
+    font-size: 11px;
+    color: #222222;
+  }
+  .pdf-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 11px;
+  }
+  .pdf-table thead {
+    display: table-header-group;
+  }
+  .pdf-table th {
+    background: #181818;
+    color: #ffffff;
+    text-align: left;
+    padding: 7px 8px;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border: 1px solid #181818;
+  }
+  .pdf-table th.num-col,
+  .pdf-table td.num-col {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+  .pdf-table tr {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+  .pdf-table td {
+    padding: 7px 8px;
+    border-bottom: 1px solid #dcdcdc;
+    vertical-align: top;
+    color: #111111;
+    background: transparent;
+  }
+  .pdf-table tbody tr:nth-child(even) td {
+    background: rgba(0, 0, 0, 0.022);
+  }
+  .pdf-type-pill {
+    display: inline-block;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 9.5px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+  }
+  .pdf-type-in {
+    background: #111111;
+    color: #ffffff;
+  }
+  .pdf-type-out {
+    border: 1px solid #222222;
+    color: #111111;
+  }
+  .pdf-type-transfer {
+    background: #e6e6e6;
+    color: #222222;
+  }
+  .pdf-desc-cell {
+    white-space: pre-wrap;
+    word-break: break-word;
+    line-height: 1.4;
+    max-width: 260px;
+  }
+  .pdf-foot {
+    margin-top: 14px;
+    padding-top: 8px;
+    border-top: 1px solid #cccccc;
+    display: flex;
+    justify-content: space-between;
+    font-size: 10px;
+    color: #666666;
+  }
+}
 </style>
 </head>
 <body>
@@ -334,8 +581,8 @@ input[type=number]{-moz-appearance:textfield}
   <!-- Add Transaction Panel -->
   <div class="panel">
     <div class="seg" id="typeSeg">
-      <button data-type="in" class="active">Money In (+)</button>
-      <button data-type="out">Money Out (-)</button>
+      <button data-type="in" class="active">Inflow (+)</button>
+      <button data-type="out">Outflow (-)</button>
       <button data-type="transfer">Transfer</button>
     </div>
     
@@ -369,9 +616,15 @@ input[type=number]{-moz-appearance:textfield}
       <span class="cur" id="curSym">$</span>
       <input id="amount" type="number" inputmode="decimal" step="0.01" min="0" placeholder="0.00">
     </div>
-    <input id="note" type="text" placeholder="Note (lunch, salary, transfer…)" maxlength="60">
-    <button id="addBtn" class="primary" data-current="in">ADD MONEY IN (+)</button>
-    <div class="hint" id="addHint">Adds to selected account</div>
+    <div class="desc-box">
+      <textarea id="note" rows="3" placeholder="Add description (optional, up to 1,000 words)…"></textarea>
+      <div class="word-counter" id="wordCounter">
+        <span>Optional description</span>
+        <span id="wordCountText">0 / 1,000 words</span>
+      </div>
+    </div>
+    <button id="addBtn" class="primary" data-current="in">ADD INFLOW (+)</button>
+    <div class="hint" id="addHint">Adds inflow to selected account</div>
   </div>
 
   <!-- Recent Preview -->
@@ -406,12 +659,12 @@ input[type=number]{-moz-appearance:textfield}
 
   <div class="panel">
     <div class="row">
-      <span class="pill in">In (+)</span>
+      <span class="pill in">Inflow</span>
       <div class="track"><div class="fill in" id="fillIn"></div></div>
       <span class="num" id="numIn">$0.00</span>
     </div>
     <div class="row">
-      <span class="pill out">Out (-)</span>
+      <span class="pill out">Outflow</span>
       <div class="track"><div class="fill out" id="fillOut"></div></div>
       <span class="num" id="numOut">$0.00</span>
     </div>
@@ -448,7 +701,7 @@ input[type=number]{-moz-appearance:textfield}
     </div>
     <div class="hint" id="syncHint">Credentials stay saved on this device.</div>
     <div class="info-box">
-      Once saved, your Token and Gist ID are stored permanently in this browser. With <strong>Auto-Sync</strong> turned on, offline adds and deletes are queued automatically and pushed as soon as you reconnect.
+      Once saved, your Token and Gist ID are stored permanently in this browser. With <strong>Auto-Sync</strong> turned on, offline adds, edits, and deletes are queued automatically and pushed as soon as you reconnect.
     </div>
   </div>
 </section>
@@ -458,11 +711,11 @@ input[type=number]{-moz-appearance:textfield}
   <div class="panel">
     <div class="lbl" style="margin-bottom:12px;">Export Data</div>
     <div class="btn-stack">
-      <button id="exportBtnCsv" class="btn-solid">Export CSV (Filtered Transactions)</button>
+      <button id="exportBtnPdf" class="btn-solid">Export Statement (PDF)</button>
       <button id="exportBtn" class="btn-outline">Export Full Backup (JSON)</button>
     </div>
     <div class="info-box">
-      CSV exports transactions matching your currently selected filter in the Transactions tab. JSON exports everything including your currency setting.
+      PDF exports a formatted ledger statement matching your currently selected filter in the Transactions tab—complete with period totals, edited descriptions, and a <strong>Pocket Ledger</strong> watermark. Choose <strong>Save as PDF</strong> in the print dialog. JSON exports everything including your currency setting.
     </div>
   </div>
 
@@ -475,6 +728,9 @@ input[type=number]{-moz-appearance:textfield}
     </div>
   </div>
 </section>
+
+<!-- Printable PDF Statement Container -->
+<div id="pdfPrintRoot" aria-hidden="true"></div>
 
 <script>
 (function(){
@@ -519,9 +775,38 @@ input[type=number]{-moz-appearance:textfield}
 
   var KEY = 'pocketledger.v1';
   var PENDING_KEY = 'ledger_pending_push';
+  var MAX_WORDS = 1000;
   var state = { txs: [], cur: '$', updatedAt: 0 };
   var hasPendingPush = false;
   var syncInFlight = null;
+
+  /* Track expanded detail drawers and inline edit states by transaction ID */
+  var openDetails = {};
+  var editingIds = {};
+
+  function countWords(str){
+    var trimmed = String(str || '').trim();
+    if(!trimmed) return 0;
+    return trimmed.split(/\s+/).length;
+  }
+
+  function enforceWordLimit(str, maxWords){
+    var text = String(str || '');
+    var matches = text.match(/\S+/g);
+    if(!matches || matches.length <= maxWords) return text;
+    var count = 0;
+    var endIdx = text.length;
+    var re = /\S+/g;
+    var m;
+    while((m = re.exec(text)) !== null){
+      count++;
+      if(count === maxWords){
+        endIdx = m.index + m[0].length;
+        break;
+      }
+    }
+    return text.slice(0, endIdx);
+  }
 
   function load(){
     try{
@@ -578,12 +863,17 @@ input[type=number]{-moz-appearance:textfield}
   function esc(s){
     return String(s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; });
   }
+  function cap(s){
+    s = String(s || '');
+    return s.charAt(0).toUpperCase() + s.slice(1);
+  }
 
   var $ = function(id){ return document.getElementById(id); };
   var totalEl=$('total'), bAcc=$('b-account'), bSav=$('b-savings'), bCash=$('b-cash'), bCoins=$('b-coins');
   var dayEl=$('day'), txDayEl=$('txDay'), filterSeg=$('filterSeg'), customRange=$('customRange'), startDateEl=$('startDate'), endDateEl=$('endDate');
   var fillIn=$('fillIn'), fillOut=$('fillOut'), numIn=$('numIn'), numOut=$('numOut'), netEl=$('net');
-  var amountEl=$('amount'), noteEl=$('note'), addBtn=$('addBtn'), addHint=$('addHint'), listEl=$('list'), recentListEl=$('recentList');
+  var amountEl=$('amount'), noteEl=$('note'), wordCounter=$('wordCounter'), wordCountText=$('wordCountText');
+  var addBtn=$('addBtn'), addHint=$('addHint'), listEl=$('list'), recentListEl=$('recentList');
   var curInput=$('cur'), curSym=$('curSym');
   var typeSeg=$('typeSeg'), methodSelect=$('methodSelect'), fromSelect=$('fromSelect'), toSelect=$('toSelect');
   var standardMethod=$('standardMethod'), transferMethod=$('transferMethod');
@@ -594,6 +884,18 @@ input[type=number]{-moz-appearance:textfield}
   txDayEl.value = todayStr();
   startDateEl.value = todayStr();
   endDateEl.value = todayStr();
+
+  function updateMainWordCounter(){
+    var enforced = enforceWordLimit(noteEl.value, MAX_WORDS);
+    if(enforced !== noteEl.value){
+      noteEl.value = enforced;
+    }
+    var wc = countWords(noteEl.value);
+    wordCountText.textContent = wc.toLocaleString() + ' / 1,000 words';
+    wordCounter.classList.toggle('near-limit', wc >= 850 && wc < MAX_WORDS);
+    wordCounter.classList.toggle('at-limit', wc >= MAX_WORDS);
+  }
+  noteEl.addEventListener('input', updateMainWordCounter);
 
   /* Navigation & Drawer Logic */
   var drawer = $('drawer'), backdrop = $('drawerBackdrop'), pageTitle = $('pageTitle');
@@ -630,6 +932,41 @@ input[type=number]{-moz-appearance:textfield}
   $('viewAllLink').addEventListener('click', function(){ switchView('transactions'); });
 
   /* Filtering Logic */
+  function getPeriodMeta() {
+    if (scope === 'all') {
+      return { label: 'All Time', start: null, end: null };
+    }
+    if (scope === 'custom') {
+      return {
+        label: 'Custom (' + (startDateEl.value || '—') + ' to ' + (endDateEl.value || '—') + ')',
+        start: startDateEl.value,
+        end: endDateEl.value
+      };
+    }
+    var parts = txDayEl.value.split('-');
+    var now = new Date(parts[0], parts[1]-1, parts[2]);
+    var start = new Date(now);
+    var end = new Date(now);
+
+    if (scope === 'day') {
+      start = new Date(now); end = new Date(now);
+      return { label: 'Daily (' + toDateStr(start) + ')', start: toDateStr(start), end: toDateStr(end) };
+    } else if (scope === 'week') {
+      start.setDate(now.getDate() - now.getDay());
+      end.setDate(start.getDate() + 6);
+      return { label: 'Weekly (' + toDateStr(start) + ' to ' + toDateStr(end) + ')', start: toDateStr(start), end: toDateStr(end) };
+    } else if (scope === 'month') {
+      start.setDate(1);
+      end.setMonth(now.getMonth()+1, 0);
+      return { label: 'Monthly (' + toDateStr(start) + ' to ' + toDateStr(end) + ')', start: toDateStr(start), end: toDateStr(end) };
+    } else if (scope === 'year') {
+      start.setMonth(0,1);
+      end.setMonth(11,31);
+      return { label: 'Yearly (' + parts[0] + ')', start: toDateStr(start), end: toDateStr(end) };
+    }
+    return { label: 'Filtered', start: null, end: null };
+  }
+
   function getFilteredTxs() {
     if (scope === 'all') return state.txs.slice().sort(function(a,b){ return (b.ts||0)-(a.ts||0); });
     
@@ -688,25 +1025,58 @@ input[type=number]{-moz-appearance:textfield}
       var isIn = t.type === 'in', isOut = t.type === 'out';
       var cls = isIn ? 'in' : (isOut ? 'out' : 'transfer');
       var sign = isIn ? '+' : (isOut ? '−' : '⇄');
+      var titleLabel = isIn ? 'Inflow' : (isOut ? 'Outflow' : 'Transfer');
       
       var meta = '';
       var safeMethod = t.method || 'account'; 
       if(t.type === 'transfer'){
         var safeTo = t.toMethod || 'savings';
-        meta = 'Transfer: ' + safeMethod.charAt(0).toUpperCase() + safeMethod.slice(1) + ' → ' + safeTo.charAt(0).toUpperCase() + safeTo.slice(1);
+        meta = cap(safeMethod) + ' → ' + cap(safeTo);
       } else {
-        meta = safeMethod.charAt(0).toUpperCase() + safeMethod.slice(1);
+        meta = cap(safeMethod);
       }
 
-      html += '<div class="tx">' +
-        '<span class="dot ' + cls + '"></span>' +
-        '<div class="txmain">' +
-          '<div class="txnote">' + esc(t.note || (isIn?'Money In':(isOut?'Money Out':'Transfer'))) + '</div>' +
-          '<div class="txmeta">' + meta + ' · ' + t.date + '</div>' +
+      var isOpen = !!openDetails[t.id];
+      var isEditing = !!editingIds[t.id];
+      var desc = (t.note || '').trim();
+      var editWc = countWords(desc);
+
+      html += '<div class="tx" data-tx-id="' + esc(t.id) + '">' +
+        '<div class="tx-top">' +
+          '<span class="dot ' + cls + '"></span>' +
+          '<div class="txmain">' +
+            '<div class="txnote">' + titleLabel + '</div>' +
+            '<div class="txmeta">' + esc(meta) + ' · ' + esc(t.date) + '</div>' +
+          '</div>' +
+          '<div class="txright">' +
+            '<span class="txamt ' + cls + '">' + sign + fmt(t.cents) + '</span>' +
+            '<button type="button" class="details-btn' + (isOpen ? ' open' : '') + '" data-id="' + esc(t.id) + '" aria-expanded="' + (isOpen ? 'true' : 'false') + '">' +
+              '<span>Details</span><span class="chev">▾</span>' +
+            '</button>' +
+          '</div>' +
+          '<button type="button" class="del" data-id="' + esc(t.id) + '" aria-label="Delete transaction">×</button>' +
         '</div>' +
-        '<span class="txamt ' + cls + '">' + sign + fmt(t.cents) + '</span>' +
-        '<button class="del" data-id="' + t.id + '">×</button>' +
-      '</div>';
+        '<div class="tx-drawer' + (isOpen ? ' open' : '') + '">';
+
+      if(isEditing){
+        html += '<textarea class="tx-edit-area" data-id="' + esc(t.id) + '" rows="3" placeholder="Enter description (up to 1,000 words)…">' + esc(t.note || '') + '</textarea>' +
+          '<div class="tx-edit-footer">' +
+            '<span class="tx-edit-count">' + editWc.toLocaleString() + ' / 1,000 words</span>' +
+            '<div style="display:flex;gap:6px;">' +
+              '<button type="button" class="tx-mini-btn cancel-edit-btn" data-id="' + esc(t.id) + '">Cancel</button>' +
+              '<button type="button" class="tx-mini-btn save save-edit-btn" data-id="' + esc(t.id) + '">Save</button>' +
+            '</div>' +
+          '</div>';
+      } else {
+        html += '<div class="tx-desc-view">' +
+            (desc ? esc(desc) : '<span class="tx-desc-empty">No description added.</span>') +
+          '</div>' +
+          '<div class="tx-drawer-actions">' +
+            '<button type="button" class="tx-mini-btn edit-desc-btn" data-id="' + esc(t.id) + '">Edit Description</button>' +
+          '</div>';
+      }
+
+      html += '</div></div>';
     }
     return html;
   }
@@ -757,14 +1127,14 @@ input[type=number]{-moz-appearance:textfield}
     curSym.textContent = state.cur;
     
     if(curType === 'in'){ 
-      addBtn.textContent = 'ADD MONEY IN (+)'; 
+      addBtn.textContent = 'ADD INFLOW (+)'; 
       addBtn.setAttribute('data-current', 'in');
-      addHint.textContent = 'Adds to selected account'; 
+      addHint.textContent = 'Adds inflow to selected account'; 
     }
     else if(curType === 'out'){ 
-      addBtn.textContent = 'TAKE MONEY OUT (-)'; 
+      addBtn.textContent = 'ADD OUTFLOW (-)'; 
       addBtn.setAttribute('data-current', 'out');
-      addHint.textContent = 'Subtracts from selected account'; 
+      addHint.textContent = 'Subtracts outflow from selected account'; 
     }
     else { 
       addBtn.textContent = 'TRANSFER FUNDS'; 
@@ -804,7 +1174,7 @@ input[type=number]{-moz-appearance:textfield}
     if(curType === 'out'){
       var b = balances();
       if(b[methodSelect.value] < cents){
-        if(!confirm("Warning: This will make your " + methodSelect.value + " balance negative.\n\nAre you sure?")) return;
+        if(!confirm("Warning: This outflow will make your " + methodSelect.value + " balance negative.\n\nAre you sure?")) return;
       }
     }
     if(curType === 'transfer'){
@@ -814,12 +1184,14 @@ input[type=number]{-moz-appearance:textfield}
         if(!confirm("Warning: You don't have enough in " + fromSelect.value + " to transfer this amount. It will go negative.\n\nAre you sure?")) return;
       }
     }
+
+    var cleanDesc = enforceWordLimit(noteEl.value, MAX_WORDS).trim();
     
     var newTx = {
       id: Date.now().toString(36) + Math.random().toString(36).slice(2, 7),
       type: curType,
       cents: cents,
-      note: noteEl.value.trim(),
+      note: cleanDesc,
       date: dayEl.value || todayStr(),
       ts: Date.now()
     };
@@ -835,22 +1207,100 @@ input[type=number]{-moz-appearance:textfield}
     save();
     amountEl.value = '';
     noteEl.value = '';
+    updateMainWordCounter();
     render();
     amountEl.focus();
   });
 
-  function handleDelete(e){
-    var btn = e.target.closest('.del');
-    if(!btn) return;
-    var id = btn.dataset.id;
-    if(confirm('Delete this transaction?')){
-      state.txs = state.txs.filter(function(t){ return t.id !== id; });
+  /* Unified Transaction Card Interaction Handler (Details Toggle, Inline Edit, Delete) */
+  function handleTxContainerClick(e){
+    var detailsBtn = e.target.closest('.details-btn');
+    if(detailsBtn){
+      var dId = detailsBtn.dataset.id;
+      if(openDetails[dId]){
+        delete openDetails[dId];
+        delete editingIds[dId];
+      } else {
+        openDetails[dId] = true;
+      }
+      render();
+      return;
+    }
+
+    var editBtn = e.target.closest('.edit-desc-btn');
+    if(editBtn){
+      var eId = editBtn.dataset.id;
+      openDetails[eId] = true;
+      editingIds[eId] = true;
+      render();
+      var card = e.currentTarget.querySelector('.tx[data-tx-id="' + eId + '"] .tx-edit-area');
+      if(card){
+        card.focus();
+        card.setSelectionRange(card.value.length, card.value.length);
+      }
+      return;
+    }
+
+    var cancelBtn = e.target.closest('.cancel-edit-btn');
+    if(cancelBtn){
+      var cId = cancelBtn.dataset.id;
+      delete editingIds[cId];
+      render();
+      return;
+    }
+
+    var saveBtn = e.target.closest('.save-edit-btn');
+    if(saveBtn){
+      var sId = saveBtn.dataset.id;
+      var cardEl = saveBtn.closest('.tx');
+      var textarea = cardEl ? cardEl.querySelector('.tx-edit-area') : null;
+      var updatedText = textarea ? enforceWordLimit(textarea.value, MAX_WORDS).trim() : '';
+      for(var i=0;i<state.txs.length;i++){
+        if(state.txs[i].id === sId){
+          state.txs[i].note = updatedText;
+          break;
+        }
+      }
+      delete editingIds[sId];
+      openDetails[sId] = true;
       save();
       render();
+      return;
+    }
+
+    var delBtn = e.target.closest('.del');
+    if(delBtn){
+      var delId = delBtn.dataset.id;
+      if(confirm('Delete this transaction?')){
+        state.txs = state.txs.filter(function(t){ return t.id !== delId; });
+        delete openDetails[delId];
+        delete editingIds[delId];
+        save();
+        render();
+      }
+      return;
     }
   }
-  listEl.addEventListener('click', handleDelete);
-  recentListEl.addEventListener('click', handleDelete);
+
+  function handleTxContainerInput(e){
+    var textarea = e.target.closest('.tx-edit-area');
+    if(!textarea) return;
+    var enforced = enforceWordLimit(textarea.value, MAX_WORDS);
+    if(enforced !== textarea.value){
+      textarea.value = enforced;
+    }
+    var wc = countWords(textarea.value);
+    var counterEl = textarea.parentElement.querySelector('.tx-edit-count');
+    if(counterEl){
+      counterEl.textContent = wc.toLocaleString() + ' / 1,000 words';
+      counterEl.style.color = wc >= MAX_WORDS ? '#ff7b7b' : (wc >= 850 ? '#e0b458' : '');
+    }
+  }
+
+  listEl.addEventListener('click', handleTxContainerClick);
+  recentListEl.addEventListener('click', handleTxContainerClick);
+  listEl.addEventListener('input', handleTxContainerInput);
+  recentListEl.addEventListener('input', handleTxContainerInput);
 
   /* Date Steppers */
   function shiftDateInput(el, n){
@@ -874,25 +1324,103 @@ input[type=number]{-moz-appearance:textfield}
     render();
   });
 
-  /* Import / Export */
-  $('exportBtnCsv').addEventListener('click', function(){
-    var filtered = getFilteredTxs();
-    if(!filtered.length){ alert("No data in current Transactions filter to export."); return; }
-    
-    var csv = "\uFEFFDate,Type,From/Account,To/Account,Amount,Note\n";
-    filtered.forEach(function(t){
-      var amt = (t.cents/100).toFixed(2);
-      var from = t.method || 'account';
-      var to = t.toMethod || '';
-      var note = '"' + (t.note||'').replace(/"/g, '""') + '"';
-      csv += `${t.date},${t.type},${from},${to},${amt},${note}\n`;
-    });
+  /* Organized PDF Statement Export with Diagonal Watermark */
+  function buildPdfStatementHtml(filtered){
+    var period = getPeriodMeta();
+    var sIn = 0, sOut = 0, sTransfer = 0;
+    for(var i=0;i<filtered.length;i++){
+      var item = filtered[i];
+      if(item.type === 'in') sIn += item.cents;
+      else if(item.type === 'out') sOut += item.cents;
+      else if(item.type === 'transfer') sTransfer += item.cents;
+    }
+    var net = sIn - sOut;
+    var acctBal = balances();
+    var totalPocket = acctBal.account + acctBal.savings + acctBal.cash + acctBal.coins;
+    var generatedOn = new Date().toLocaleString();
 
-    var blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
-    var url = URL.createObjectURL(blob);
-    var a = document.createElement('a');
-    a.href = url; a.download = 'ledger-export.csv';
-    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    var rowsHtml = '';
+    for(var j=0;j<filtered.length;j++){
+      var t = filtered[j];
+      var isIn = t.type === 'in', isOut = t.type === 'out';
+      var typeText = isIn ? 'Inflow' : (isOut ? 'Outflow' : 'Transfer');
+      var typeCls = isIn ? 'pdf-type-in' : (isOut ? 'pdf-type-out' : 'pdf-type-transfer');
+      var sign = isIn ? '+' : (isOut ? '−' : '⇄');
+      var safeMethod = cap(t.method || 'account');
+      var acctCol = t.type === 'transfer'
+        ? (safeMethod + ' → ' + cap(t.toMethod || 'savings'))
+        : safeMethod;
+      var descText = (t.note || '').trim();
+
+      rowsHtml += '<tr>' +
+        '<td style="white-space:nowrap;">' + esc(t.date) + '</td>' +
+        '<td><span class="pdf-type-pill ' + typeCls + '">' + typeText + '</span></td>' +
+        '<td>' + esc(acctCol) + '</td>' +
+        '<td class="pdf-desc-cell">' + (descText ? esc(descText) : '<span style="color:#888888;">—</span>') + '</td>' +
+        '<td class="num-col" style="font-weight:700;">' + sign + fmt(t.cents) + '</td>' +
+      '</tr>';
+    }
+
+    return '<div class="pdf-watermark">Pocket Ledger</div>' +
+      '<div class="pdf-doc">' +
+        '<div class="pdf-head">' +
+          '<div>' +
+            '<div class="pdf-brand">Pocket Ledger</div>' +
+            '<div class="pdf-sub">Official Transaction Statement</div>' +
+          '</div>' +
+          '<div class="pdf-meta-right">' +
+            '<div><strong>Period:</strong> ' + esc(period.label) + '</div>' +
+            '<div><strong>Transactions:</strong> ' + filtered.length + '</div>' +
+            '<div><strong>Generated:</strong> ' + esc(generatedOn) + '</div>' +
+          '</div>' +
+        '</div>' +
+        '<div class="pdf-summary-grid">' +
+          '<div class="pdf-sum-card"><div class="pdf-sum-lbl">Total Inflow</div><div class="pdf-sum-val">+' + fmt(sIn) + '</div></div>' +
+          '<div class="pdf-sum-card"><div class="pdf-sum-lbl">Total Outflow</div><div class="pdf-sum-val">−' + fmt(sOut) + '</div></div>' +
+          '<div class="pdf-sum-card"><div class="pdf-sum-lbl">Net Flow</div><div class="pdf-sum-val">' + (net > 0 ? '+' : '') + fmt(net) + '</div></div>' +
+          '<div class="pdf-sum-card"><div class="pdf-sum-lbl">Total in Pocket</div><div class="pdf-sum-val">' + fmt(totalPocket) + '</div></div>' +
+        '</div>' +
+        '<div class="pdf-acct-bar">' +
+          '<span><strong>Account:</strong> ' + fmt(acctBal.account) + '</span>' +
+          '<span><strong>Savings:</strong> ' + fmt(acctBal.savings) + '</span>' +
+          '<span><strong>Cash:</strong> ' + fmt(acctBal.cash) + '</span>' +
+          '<span><strong>Coins:</strong> ' + fmt(acctBal.coins) + '</span>' +
+        '</div>' +
+        '<table class="pdf-table">' +
+          '<thead>' +
+            '<tr>' +
+              '<th style="width:14%;">Date</th>' +
+              '<th style="width:13%;">Type</th>' +
+              '<th style="width:18%;">Account</th>' +
+              '<th style="width:39%;">Description</th>' +
+              '<th class="num-col" style="width:16%;">Amount</th>' +
+            '</tr>' +
+          '</thead>' +
+          '<tbody>' + rowsHtml + '</tbody>' +
+        '</table>' +
+        '<div class="pdf-foot">' +
+          '<span>Pocket Ledger — Personal Financial Record</span>' +
+          '<span>Currency: ' + esc(state.cur) + '</span>' +
+        '</div>' +
+      '</div>';
+  }
+
+  $('exportBtnPdf').addEventListener('click', function(){
+    var filtered = getFilteredTxs();
+    if(!filtered.length){
+      alert("No transactions in the current Transactions filter to export.");
+      return;
+    }
+    var pdfRoot = $('pdfPrintRoot');
+    pdfRoot.innerHTML = buildPdfStatementHtml(filtered);
+    var prevTitle = document.title;
+    document.title = 'Pocket-Ledger-Statement-' + todayStr();
+    setTimeout(function(){
+      window.print();
+      setTimeout(function(){
+        document.title = prevTitle;
+      }, 500);
+    }, 60);
   });
 
   $('exportBtn').addEventListener('click', function(){
@@ -1130,6 +1658,7 @@ input[type=number]{-moz-appearance:textfield}
   }
 
   curInput.value = state.cur;
+  updateMainWordCounter();
   render();
   updateOnlineStatus();
 })();
