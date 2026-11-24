@@ -163,9 +163,27 @@ button, input, select, textarea { touch-action: manipulation; }
   border-radius:8px;padding:7px 8px;font:inherit;font-size:14px;font-weight:700;text-align:center;outline:none;
 }
 
-/* Views */
-.view{display:none;}
-.view.active{display:block;}
+/* Views & Smooth Fade Transition */
+.view{
+  display:none;
+  opacity:1;
+  transform:translateY(0);
+  transition:opacity .16s ease, transform .16s ease;
+}
+.view.active{
+  display:block;
+  animation:viewFadeIn .2s cubic-bezier(.22,.8,.36,1) both;
+}
+.view.leaving{
+  display:block;
+  opacity:0;
+  transform:translateY(-4px);
+  pointer-events:none;
+}
+@keyframes viewFadeIn{
+  from{opacity:0;transform:translateY(6px);}
+  to{opacity:1;transform:translateY(0);}
+}
 
 /* Balance Top Card */
 .top{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:16px;margin-bottom:14px}
@@ -267,20 +285,42 @@ input[type=number]{-moz-appearance:textfield}
   background:var(--panel2);border:1px solid var(--line);color:var(--muted);
   border-radius:99px;padding:3px 9px;font:inherit;font-size:11px;font-weight:600;
   cursor:pointer;display:inline-flex;align-items:center;gap:4px;line-height:1.2;
-  transition:.15s;
+  transition:background .15s ease, color .15s ease, border-color .15s ease;
 }
 .details-btn:hover{color:var(--txt);border-color:var(--muted);}
 .details-btn.open{background:var(--txt);color:var(--bg);border-color:var(--txt);}
-.details-btn .chev{font-size:9px;transition:transform .2s ease;display:inline-block;}
+.details-btn .chev{font-size:9px;transition:transform .24s cubic-bezier(.22,.8,.36,1);display:inline-block;}
 .details-btn.open .chev{transform:rotate(180deg);}
 
 .del{width:28px;height:28px;flex:none;border:0;border-radius:50%;background:transparent;color:#5c6675;font-size:19px;line-height:1;cursor:pointer;padding:0}
 .del:hover{color:var(--txt);}
 
+/* Smooth CSS Grid Expanding Details Drawer */
 .tx-drawer{
-  display:none;margin-top:10px;padding-top:10px;border-top:1px solid var(--line);
+  display:grid;
+  grid-template-rows:0fr;
+  opacity:0;
+  margin-top:0;
+  padding-top:0;
+  border-top:1px solid transparent;
+  transition:
+    grid-template-rows .26s cubic-bezier(.22,.8,.36,1),
+    opacity .2s ease,
+    margin-top .26s cubic-bezier(.22,.8,.36,1),
+    padding-top .26s cubic-bezier(.22,.8,.36,1),
+    border-color .2s ease;
 }
-.tx-drawer.open{display:block;}
+.tx-drawer.open{
+  grid-template-rows:1fr;
+  opacity:1;
+  margin-top:10px;
+  padding-top:10px;
+  border-top-color:var(--line);
+}
+.tx-drawer-inner{
+  overflow:hidden;
+  min-height:0;
+}
 .tx-desc-view{
   font-size:13.5px;color:var(--txt);line-height:1.5;white-space:pre-wrap;word-break:break-word;
   background:var(--panel2);border-radius:9px;padding:9px 11px;
@@ -316,189 +356,306 @@ input[type=number]{-moz-appearance:textfield}
 .toggle-row input[type="checkbox"]{width:20px;height:20px;accent-color:var(--txt);cursor:pointer;}
 .info-box{background:var(--panel2);border-radius:10px;padding:12px;font-size:13px;color:var(--muted);line-height:1.5;margin-top:12px;}
 
-/* ---------- PDF PRINT STATEMENT LAYER (Hidden on screen, active on print) ---------- */
-#pdfPrintRoot{display:none;}
+.pdf-range-box{
+  background:var(--panel2);border:1px solid var(--line);border-radius:12px;
+  padding:12px;margin-bottom:12px;
+}
+.pdf-range-pills{
+  display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;
+}
+.pdf-range-pills button{
+  background:var(--panel);border:1px solid var(--line);color:var(--muted);
+  padding:6px 11px;border-radius:99px;font:inherit;font-size:12px;font-weight:600;cursor:pointer;
+}
+.pdf-range-pills button.active{
+  background:var(--txt);color:var(--bg);border-color:var(--txt);
+}
+.pdf-range-controls{
+  margin-top:10px;display:flex;flex-direction:column;gap:8px;
+}
+.pdf-range-row{
+  display:flex;gap:8px;align-items:center;
+}
+.pdf-range-row input, .pdf-range-row select{
+  flex:1;min-width:0;background:var(--panel);border:1px solid var(--line);
+  color:var(--txt);border-radius:9px;padding:8px 10px;font:inherit;font-size:13px;outline:none;
+}
+
+/* ---------- iOS / iPhone 17 Pro Max Safe PDF Preview & Print Modal ---------- */
+.pdf-modal-backdrop{
+  position:fixed;inset:0;background:rgba(0,0,0,0.82);z-index:1300;
+  display:none;align-items:center;justify-content:center;padding:12px;
+  opacity:0;transition:opacity .2s ease;
+}
+.pdf-modal-backdrop.open{
+  display:flex;opacity:1;
+}
+.pdf-modal{
+  width:100%;max-width:680px;max-height:92vh;
+  background:#1a1a1a;border:1px solid var(--line);border-radius:16px;
+  display:flex;flex-direction:column;overflow:hidden;
+}
+.pdf-modal-bar{
+  display:flex;align-items:center;justify-content:space-between;gap:8px;
+  padding:12px 14px;background:var(--panel);border-bottom:1px solid var(--line);
+}
+.pdf-modal-title{
+  font-size:15px;font-weight:700;color:var(--txt);
+}
+.pdf-modal-actions{
+  display:flex;align-items:center;gap:8px;
+}
+.pdf-modal-btn{
+  border-radius:9px;padding:7px 12px;font:inherit;font-size:13px;font-weight:700;cursor:pointer;
+}
+.pdf-modal-btn.print{
+  background:var(--txt);color:var(--bg);border:1px solid var(--txt);
+}
+.pdf-modal-btn.close{
+  background:var(--panel2);color:var(--txt);border:1px solid var(--line);
+}
+.pdf-preview-scroll{
+  flex:1;overflow:auto;-webkit-overflow-scrolling:touch;
+  padding:14px;background:#3a3a3a;
+}
+
+/* ---------- PDF STATEMENT DOCUMENT & WATERMARK ---------- */
+.pdf-sheet{
+  position:relative;
+  background:#ffffff;
+  color:#111111;
+  width:100%;
+  min-height:640px;
+  padding:20px 18px 24px;
+  border-radius:6px;
+  overflow:hidden;
+  box-shadow:0 8px 24px rgba(0,0,0,0.45);
+}
+.pdf-watermark{
+  position:absolute;
+  top:50%;
+  left:50%;
+  transform:translate(-50%, -50%) rotate(-32deg);
+  font-size:66px;
+  font-weight:900;
+  letter-spacing:3px;
+  text-transform:uppercase;
+  color:rgba(17, 17, 17, 0.065);
+  white-space:nowrap;
+  pointer-events:none;
+  z-index:2;
+  user-select:none;
+}
+.pdf-doc{
+  position:relative;
+  z-index:1;
+}
+.pdf-head{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-end;
+  gap:10px;
+  border-bottom:2px solid #111111;
+  padding-bottom:10px;
+  margin-bottom:14px;
+}
+.pdf-brand{
+  font-size:21px;
+  font-weight:800;
+  letter-spacing:-0.5px;
+  color:#111111;
+}
+.pdf-sub{
+  font-size:11px;
+  color:#555555;
+  margin-top:2px;
+}
+.pdf-meta-right{
+  text-align:right;
+  font-size:11px;
+  color:#333333;
+  line-height:1.45;
+}
+.pdf-summary-grid{
+  display:grid;
+  grid-template-columns:repeat(4, 1fr);
+  gap:7px;
+  margin-bottom:12px;
+}
+.pdf-sum-card{
+  border:1px solid #cccccc;
+  background:rgba(248, 248, 248, 0.85);
+  border-radius:6px;
+  padding:7px 8px;
+}
+.pdf-sum-lbl{
+  font-size:9px;
+  text-transform:uppercase;
+  letter-spacing:0.05em;
+  color:#555555;
+  font-weight:700;
+}
+.pdf-sum-val{
+  font-size:13px;
+  font-weight:800;
+  color:#111111;
+  margin-top:3px;
+  font-variant-numeric:tabular-nums;
+}
+.pdf-acct-bar{
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:space-between;
+  gap:6px 12px;
+  border:1px solid #dddddd;
+  background:rgba(250, 250, 250, 0.85);
+  border-radius:6px;
+  padding:7px 10px;
+  margin-bottom:12px;
+  font-size:11px;
+  color:#222222;
+}
+.pdf-table{
+  width:100%;
+  border-collapse:collapse;
+  font-size:11px;
+}
+.pdf-table thead{
+  display:table-header-group;
+}
+.pdf-table th{
+  background:#181818;
+  color:#ffffff;
+  text-align:left;
+  padding:7px 7px;
+  font-size:9.5px;
+  text-transform:uppercase;
+  letter-spacing:0.05em;
+  border:1px solid #181818;
+}
+.pdf-table th.num-col,
+.pdf-table td.num-col{
+  text-align:right;
+  font-variant-numeric:tabular-nums;
+  white-space:nowrap;
+}
+.pdf-table tr{
+  break-inside:avoid;
+  page-break-inside:avoid;
+}
+.pdf-table td{
+  padding:7px 7px;
+  border-bottom:1px solid #dcdcdc;
+  vertical-align:top;
+  color:#111111;
+  background:transparent;
+}
+.pdf-table tbody tr:nth-child(even) td{
+  background:rgba(0, 0, 0, 0.022);
+}
+.pdf-type-pill{
+  display:inline-block;
+  padding:2px 6px;
+  border-radius:4px;
+  font-size:9px;
+  font-weight:700;
+  text-transform:uppercase;
+  letter-spacing:0.04em;
+  white-space:nowrap;
+}
+.pdf-type-in{
+  background:#111111;
+  color:#ffffff;
+}
+.pdf-type-out{
+  border:1px solid #222222;
+  color:#111111;
+}
+.pdf-type-transfer{
+  background:#e6e6e6;
+  color:#222222;
+}
+.pdf-desc-cell{
+  white-space:pre-wrap;
+  word-break:break-word;
+  line-height:1.38;
+  max-width:240px;
+}
+.pdf-period-total-row td{
+  background:#f2f2f2 !important;
+  border-top:2px solid #111111 !important;
+  border-bottom:2px solid #111111 !important;
+  font-weight:800 !important;
+  font-size:12px !important;
+  padding-top:9px !important;
+  padding-bottom:9px !important;
+}
+.pdf-foot{
+  margin-top:14px;
+  padding-top:8px;
+  border-top:1px solid #cccccc;
+  display:flex;
+  justify-content:space-between;
+  font-size:10px;
+  color:#666666;
+}
 
 @media print {
   @page {
     size: A4 portrait;
-    margin: 14mm 12mm 16mm 12mm;
+    margin: 12mm 10mm 14mm 10mm;
   }
   html, body {
     background: #ffffff !important;
     color: #111111 !important;
     max-width: none !important;
     width: 100% !important;
+    height: auto !important;
+    overflow: visible !important;
     padding: 0 !important;
     margin: 0 !important;
-    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif !important;
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
   }
-  #splash, .drawer-backdrop, .drawer, .header, main, section {
+  #splash, .drawer-backdrop, .drawer, .header, main, section, .pdf-modal-bar {
     display: none !important;
   }
-  #pdfPrintRoot {
+  .pdf-modal-backdrop,
+  .pdf-modal-backdrop.open {
     display: block !important;
-    position: relative;
-    width: 100%;
-    color: #111111;
+    position: static !important;
+    background: transparent !important;
+    padding: 0 !important;
+    opacity: 1 !important;
+  }
+  .pdf-modal {
+    max-width: none !important;
+    max-height: none !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    background: #ffffff !important;
+    overflow: visible !important;
+  }
+  .pdf-preview-scroll {
+    padding: 0 !important;
+    background: #ffffff !important;
+    overflow: visible !important;
+  }
+  .pdf-sheet {
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    padding: 0 !important;
+    min-height: auto !important;
+    overflow: visible !important;
   }
   .pdf-watermark {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%) rotate(-32deg);
-    font-size: 74px;
-    font-weight: 900;
-    letter-spacing: 3px;
-    text-transform: uppercase;
-    color: rgba(17, 17, 17, 0.065);
-    white-space: nowrap;
-    pointer-events: none;
-    z-index: 9999;
-    user-select: none;
-  }
-  .pdf-doc {
-    position: relative;
-    z-index: 1;
-  }
-  .pdf-head {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-end;
-    border-bottom: 2px solid #111111;
-    padding-bottom: 10px;
-    margin-bottom: 14px;
-  }
-  .pdf-brand {
-    font-size: 22px;
-    font-weight: 800;
-    letter-spacing: -0.5px;
-    color: #111111;
-  }
-  .pdf-sub {
-    font-size: 11px;
-    color: #555555;
-    margin-top: 2px;
-  }
-  .pdf-meta-right {
-    text-align: right;
-    font-size: 11px;
-    color: #333333;
-    line-height: 1.45;
-  }
-  .pdf-summary-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 8px;
-    margin-bottom: 14px;
-  }
-  .pdf-sum-card {
-    border: 1px solid #cccccc;
-    background: rgba(248, 248, 248, 0.85);
-    border-radius: 6px;
-    padding: 8px 10px;
-  }
-  .pdf-sum-lbl {
-    font-size: 9.5px;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    color: #555555;
-    font-weight: 700;
-  }
-  .pdf-sum-val {
-    font-size: 14px;
-    font-weight: 800;
-    color: #111111;
-    margin-top: 3px;
-    font-variant-numeric: tabular-nums;
-  }
-  .pdf-acct-bar {
-    display: flex;
-    justify-content: space-between;
-    border: 1px solid #dddddd;
-    background: rgba(250, 250, 250, 0.85);
-    border-radius: 6px;
-    padding: 7px 12px;
-    margin-bottom: 14px;
-    font-size: 11px;
-    color: #222222;
-  }
-  .pdf-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 11px;
-  }
-  .pdf-table thead {
-    display: table-header-group;
-  }
-  .pdf-table th {
-    background: #181818;
-    color: #ffffff;
-    text-align: left;
-    padding: 7px 8px;
-    font-size: 10px;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    border: 1px solid #181818;
-  }
-  .pdf-table th.num-col,
-  .pdf-table td.num-col {
-    text-align: right;
-    font-variant-numeric: tabular-nums;
-    white-space: nowrap;
-  }
-  .pdf-table tr {
-    break-inside: avoid;
-    page-break-inside: avoid;
-  }
-  .pdf-table td {
-    padding: 7px 8px;
-    border-bottom: 1px solid #dcdcdc;
-    vertical-align: top;
-    color: #111111;
-    background: transparent;
-  }
-  .pdf-table tbody tr:nth-child(even) td {
-    background: rgba(0, 0, 0, 0.022);
-  }
-  .pdf-type-pill {
-    display: inline-block;
-    padding: 2px 6px;
-    border-radius: 4px;
-    font-size: 9.5px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-    white-space: nowrap;
-  }
-  .pdf-type-in {
-    background: #111111;
-    color: #ffffff;
-  }
-  .pdf-type-out {
-    border: 1px solid #222222;
-    color: #111111;
-  }
-  .pdf-type-transfer {
-    background: #e6e6e6;
-    color: #222222;
-  }
-  .pdf-desc-cell {
-    white-space: pre-wrap;
-    word-break: break-word;
-    line-height: 1.4;
-    max-width: 260px;
-  }
-  .pdf-foot {
-    margin-top: 14px;
-    padding-top: 8px;
-    border-top: 1px solid #cccccc;
-    display: flex;
-    justify-content: space-between;
-    font-size: 10px;
-    color: #666666;
+    position: fixed !important;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) rotate(-32deg) !important;
+    font-size: 74px !important;
+    color: rgba(17, 17, 17, 0.065) !important;
+    z-index: 9999 !important;
   }
 }
 </style>
@@ -709,13 +866,39 @@ input[type=number]{-moz-appearance:textfield}
 <!-- VIEW 4: IMPORT / EXPORT -->
 <section id="view-io" class="view">
   <div class="panel">
-    <div class="lbl" style="margin-bottom:12px;">Export Data</div>
+    <div class="lbl" style="margin-bottom:12px;">Export Statement (PDF)</div>
+
+    <div class="pdf-range-box">
+      <div class="lbl">Select PDF Time Range</div>
+      <div class="pdf-range-pills" id="pdfRangeSeg">
+        <button type="button" data-range="day" class="active">Day</button>
+        <button type="button" data-range="week">Week</button>
+        <button type="button" data-range="month">Month</button>
+        <button type="button" data-range="year">Year</button>
+        <button type="button" data-range="custom">Custom</button>
+        <button type="button" data-range="all">All Time</button>
+      </div>
+
+      <div class="pdf-range-controls" id="pdfAnchorWrap">
+        <div class="pdf-range-row">
+          <input type="date" id="pdfAnchorDate" aria-label="PDF Reference Date">
+        </div>
+      </div>
+
+      <div class="pdf-range-controls" id="pdfCustomWrap" style="display:none;">
+        <div class="pdf-range-row">
+          <input type="date" id="pdfStartDate" aria-label="PDF Start Date">
+          <input type="date" id="pdfEndDate" aria-label="PDF End Date">
+        </div>
+      </div>
+    </div>
+
     <div class="btn-stack">
-      <button id="exportBtnPdf" class="btn-solid">Export Statement (PDF)</button>
+      <button id="exportBtnPdf" class="btn-solid">Generate PDF Statement</button>
       <button id="exportBtn" class="btn-outline">Export Full Backup (JSON)</button>
     </div>
     <div class="info-box">
-      PDF exports a formatted ledger statement matching your currently selected filter in the Transactions tab—complete with period totals, edited descriptions, and a <strong>Pocket Ledger</strong> watermark. Choose <strong>Save as PDF</strong> in the print dialog. JSON exports everything including your currency setting.
+      Opens a formatted statement with a <strong>Pocket Ledger</strong> watermark, timestamps with time zone, edited descriptions, and a period net total under the transactions. On iPhone / Safari, tap <strong>Print / Save PDF</strong> then use the Share sheet &rarr; <strong>Save to Files / Print</strong>.
     </div>
   </div>
 
@@ -729,8 +912,21 @@ input[type=number]{-moz-appearance:textfield}
   </div>
 </section>
 
-<!-- Printable PDF Statement Container -->
-<div id="pdfPrintRoot" aria-hidden="true"></div>
+<!-- PDF Statement Preview & Print Modal (iOS Safari Friendly) -->
+<div class="pdf-modal-backdrop" id="pdfModalBackdrop" role="dialog" aria-modal="true" aria-labelledby="pdfModalTitle">
+  <div class="pdf-modal">
+    <div class="pdf-modal-bar">
+      <div class="pdf-modal-title" id="pdfModalTitle">Statement Preview</div>
+      <div class="pdf-modal-actions">
+        <button type="button" class="pdf-modal-btn print" id="pdfTriggerPrint">Print / PDF</button>
+        <button type="button" class="pdf-modal-btn close" id="pdfCloseModal">Close</button>
+      </div>
+    </div>
+    <div class="pdf-preview-scroll" id="pdfPreviewScroll">
+      <div class="pdf-sheet" id="pdfPrintRoot"></div>
+    </div>
+  </div>
+</div>
 
 <script>
 (function(){
@@ -850,6 +1046,35 @@ input[type=number]{-moz-appearance:textfield}
 
   function toDateStr(d){ return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0'); }
   function todayStr(){ return toDateStr(new Date()); }
+
+  function getTimeZoneAbbr(dateObj){
+    try{
+      var parts = new Intl.DateTimeFormat('en-US', { timeZoneName: 'short' }).formatToParts(dateObj);
+      for(var i=0;i<parts.length;i++){
+        if(parts[i].type === 'timeZoneName' && parts[i].value){
+          return parts[i].value;
+        }
+      }
+    }catch(e){}
+    var offsetMin = -dateObj.getTimezoneOffset();
+    var sign = offsetMin >= 0 ? '+' : '-';
+    var absMin = Math.abs(offsetMin);
+    var hh = String(Math.floor(absMin / 60)).padStart(2, '0');
+    var mm = String(absMin % 60).padStart(2, '0');
+    return 'UTC' + sign + hh + ':' + mm;
+  }
+
+  function formatTimeHmsTz(ts, fallbackTz){
+    if(!ts && ts !== 0) return '';
+    var d = new Date(ts);
+    if(isNaN(d.getTime())) return '';
+    var hh = String(d.getHours()).padStart(2, '0');
+    var mm = String(d.getMinutes()).padStart(2, '0');
+    var ss = String(d.getSeconds()).padStart(2, '0');
+    var tz = fallbackTz || getTimeZoneAbbr(d);
+    return hh + ':' + mm + ':' + ss + ' ' + tz;
+  }
+
   function fmt(cents){
     var neg = cents < 0;
     var v = Math.abs(cents) / 100;
@@ -879,11 +1104,20 @@ input[type=number]{-moz-appearance:textfield}
   var standardMethod=$('standardMethod'), transferMethod=$('transferMethod');
   var syncHint=$('syncHint'), headerStatus=$('headerStatus'), txCountEl=$('txCount'), refreshBtn=$('refreshBtn');
 
-  var curType='in', scope='day';
+  var pdfRangeSeg=$('pdfRangeSeg'), pdfAnchorWrap=$('pdfAnchorWrap'), pdfCustomWrap=$('pdfCustomWrap');
+  var pdfAnchorDate=$('pdfAnchorDate'), pdfStartDate=$('pdfStartDate'), pdfEndDate=$('pdfEndDate');
+  var pdfModalBackdrop=$('pdfModalBackdrop'), pdfPrintRoot=$('pdfPrintRoot');
+
+  var curType='in', scope='day', pdfScope='day';
+  var viewSwitchTimer = null;
+
   dayEl.value = todayStr();
   txDayEl.value = todayStr();
   startDateEl.value = todayStr();
   endDateEl.value = todayStr();
+  pdfAnchorDate.value = todayStr();
+  pdfStartDate.value = todayStr();
+  pdfEndDate.value = todayStr();
 
   function updateMainWordCounter(){
     var enforced = enforceWordLimit(noteEl.value, MAX_WORDS);
@@ -897,7 +1131,7 @@ input[type=number]{-moz-appearance:textfield}
   }
   noteEl.addEventListener('input', updateMainWordCounter);
 
-  /* Navigation & Drawer Logic */
+  /* Navigation & Drawer Logic with Smooth View Fade */
   var drawer = $('drawer'), backdrop = $('drawerBackdrop'), pageTitle = $('pageTitle');
   var viewTitles = {
     dashboard: 'Dashboard',
@@ -914,15 +1148,42 @@ input[type=number]{-moz-appearance:textfield}
   backdrop.addEventListener('click', closeDrawer);
 
   function switchView(viewName){
-    document.querySelectorAll('.view').forEach(function(v){ v.classList.remove('active'); });
+    var currentActive = document.querySelector('.view.active');
+    var target = $('view-' + viewName);
+    if(!target) return;
+
     document.querySelectorAll('.nav-item').forEach(function(btn){
       btn.classList.toggle('active', btn.dataset.view === viewName);
     });
-    var target = $('view-' + viewName);
-    if(target) target.classList.add('active');
     pageTitle.textContent = viewTitles[viewName] || 'Pocket Ledger';
     closeDrawer();
-    render();
+
+    if(viewSwitchTimer){
+      clearTimeout(viewSwitchTimer);
+      viewSwitchTimer = null;
+    }
+
+    document.querySelectorAll('.view').forEach(function(v){
+      if(v !== currentActive && v !== target){
+        v.classList.remove('active', 'leaving');
+      }
+    });
+
+    if(currentActive && currentActive !== target){
+      currentActive.classList.add('leaving');
+      currentActive.classList.remove('active');
+      viewSwitchTimer = setTimeout(function(){
+        currentActive.classList.remove('leaving');
+        target.classList.remove('leaving');
+        target.classList.add('active');
+        render();
+        viewSwitchTimer = null;
+      }, 130);
+    } else {
+      target.classList.remove('leaving');
+      target.classList.add('active');
+      render();
+    }
   }
 
   document.querySelectorAll('.nav-item').forEach(function(btn){
@@ -931,77 +1192,67 @@ input[type=number]{-moz-appearance:textfield}
 
   $('viewAllLink').addEventListener('click', function(){ switchView('transactions'); });
 
-  /* Filtering Logic */
-  function getPeriodMeta() {
-    if (scope === 'all') {
+  /* Shared Range Evaluator for Both Transactions Tab & PDF Exporter */
+  function evaluateRange(rangeMode, anchorDateStr, customStartStr, customEndStr){
+    if (rangeMode === 'all') {
       return { label: 'All Time', start: null, end: null };
     }
-    if (scope === 'custom') {
+    if (rangeMode === 'custom') {
+      var sStr = customStartStr || todayStr();
+      var eStr = customEndStr || sStr;
       return {
-        label: 'Custom (' + (startDateEl.value || '—') + ' to ' + (endDateEl.value || '—') + ')',
-        start: startDateEl.value,
-        end: endDateEl.value
+        label: 'Custom (' + sStr + ' to ' + eStr + ')',
+        start: sStr,
+        end: eStr
       };
     }
-    var parts = txDayEl.value.split('-');
-    var now = new Date(parts[0], parts[1]-1, parts[2]);
+    var baseStr = anchorDateStr || todayStr();
+    var parts = baseStr.split('-').map(Number);
+    var now = new Date(parts[0], (parts[1] || 1) - 1, parts[2] || 1);
+    if(isNaN(now.getTime())) now = new Date();
     var start = new Date(now);
     var end = new Date(now);
 
-    if (scope === 'day') {
-      start = new Date(now); end = new Date(now);
-      return { label: 'Daily (' + toDateStr(start) + ')', start: toDateStr(start), end: toDateStr(end) };
-    } else if (scope === 'week') {
+    if (rangeMode === 'day') {
+      return { label: 'Day (' + toDateStr(start) + ')', start: toDateStr(start), end: toDateStr(end) };
+    } else if (rangeMode === 'week') {
       start.setDate(now.getDate() - now.getDay());
       end.setDate(start.getDate() + 6);
-      return { label: 'Weekly (' + toDateStr(start) + ' to ' + toDateStr(end) + ')', start: toDateStr(start), end: toDateStr(end) };
-    } else if (scope === 'month') {
+      return { label: 'Week (' + toDateStr(start) + ' to ' + toDateStr(end) + ')', start: toDateStr(start), end: toDateStr(end) };
+    } else if (rangeMode === 'month') {
       start.setDate(1);
-      end.setMonth(now.getMonth()+1, 0);
-      return { label: 'Monthly (' + toDateStr(start) + ' to ' + toDateStr(end) + ')', start: toDateStr(start), end: toDateStr(end) };
-    } else if (scope === 'year') {
-      start.setMonth(0,1);
-      end.setMonth(11,31);
-      return { label: 'Yearly (' + parts[0] + ')', start: toDateStr(start), end: toDateStr(end) };
+      end.setMonth(now.getMonth() + 1, 0);
+      return { label: 'Month (' + toDateStr(start) + ' to ' + toDateStr(end) + ')', start: toDateStr(start), end: toDateStr(end) };
+    } else if (rangeMode === 'year') {
+      start.setMonth(0, 1);
+      end.setMonth(11, 31);
+      return { label: 'Year (' + start.getFullYear() + ')', start: toDateStr(start), end: toDateStr(end) };
     }
     return { label: 'Filtered', start: null, end: null };
   }
 
+  function filterTxsByRange(rangeMode, anchorDateStr, customStartStr, customEndStr){
+    var sorted = state.txs.slice().sort(function(a,b){ return (b.ts||0)-(a.ts||0); });
+    if (rangeMode === 'all') return sorted;
+
+    var meta = evaluateRange(rangeMode, anchorDateStr, customStartStr, customEndStr);
+    if (!meta.start || !meta.end) return sorted;
+
+    var sStr = meta.start;
+    var eStr = meta.end;
+    if (sStr > eStr) {
+      var tmp = sStr;
+      sStr = eStr;
+      eStr = tmp;
+    }
+
+    return sorted.filter(function(t){
+      return t.date >= sStr && t.date <= eStr;
+    });
+  }
+
   function getFilteredTxs() {
-    if (scope === 'all') return state.txs.slice().sort(function(a,b){ return (b.ts||0)-(a.ts||0); });
-    
-    if (scope === 'custom') { 
-      var s = new Date(startDateEl.value + 'T00:00:00');
-      var e = new Date(endDateEl.value + 'T23:59:59');
-      if (isNaN(s) || isNaN(e)) return state.txs;
-      return state.txs.filter(function(t){
-        var d = new Date(t.date + 'T12:00:00');
-        return d >= s && d <= e;
-      }).sort(function(a,b){ return (b.ts||0)-(a.ts||0); });
-    }
-
-    var parts = txDayEl.value.split('-');
-    var now = new Date(parts[0], parts[1]-1, parts[2]);
-    var start = new Date(now);
-    var end = new Date(now);
-
-    if (scope === 'day') { 
-      start = new Date(now); end = new Date(now); 
-    } else if (scope === 'week') { 
-      start.setDate(now.getDate() - now.getDay()); 
-      end.setDate(start.getDate() + 6); 
-    } else if (scope === 'month') { 
-      start.setDate(1); 
-      end.setMonth(now.getMonth()+1, 0); 
-    } else if (scope === 'year') { 
-      start.setMonth(0,1); 
-      end.setMonth(11,31); 
-    }
-    
-    var sStr = toDateStr(start), eStr = toDateStr(end);
-    return state.txs.filter(function(t){ 
-      return t.date >= sStr && t.date <= eStr; 
-    }).sort(function(a,b){ return (b.ts||0)-(a.ts||0); });
+    return filterTxsByRange(scope, txDayEl.value, startDateEl.value, endDateEl.value);
   }
 
   function balances(){
@@ -1036,6 +1287,11 @@ input[type=number]{-moz-appearance:textfield}
         meta = cap(safeMethod);
       }
 
+      var timeStr = t.timeHms
+        ? (t.timeHms + (t.tz ? (' ' + t.tz) : ''))
+        : formatTimeHmsTz(t.ts, t.tz);
+      var metaFull = meta + ' · ' + t.date + (timeStr ? (' · ' + timeStr) : '');
+
       var isOpen = !!openDetails[t.id];
       var isEditing = !!editingIds[t.id];
       var desc = (t.note || '').trim();
@@ -1046,7 +1302,7 @@ input[type=number]{-moz-appearance:textfield}
           '<span class="dot ' + cls + '"></span>' +
           '<div class="txmain">' +
             '<div class="txnote">' + titleLabel + '</div>' +
-            '<div class="txmeta">' + esc(meta) + ' · ' + esc(t.date) + '</div>' +
+            '<div class="txmeta">' + esc(metaFull) + '</div>' +
           '</div>' +
           '<div class="txright">' +
             '<span class="txamt ' + cls + '">' + sign + fmt(t.cents) + '</span>' +
@@ -1056,7 +1312,8 @@ input[type=number]{-moz-appearance:textfield}
           '</div>' +
           '<button type="button" class="del" data-id="' + esc(t.id) + '" aria-label="Delete transaction">×</button>' +
         '</div>' +
-        '<div class="tx-drawer' + (isOpen ? ' open' : '') + '">';
+        '<div class="tx-drawer' + (isOpen ? ' open' : '') + '">' +
+          '<div class="tx-drawer-inner">';
 
       if(isEditing){
         html += '<textarea class="tx-edit-area" data-id="' + esc(t.id) + '" rows="3" placeholder="Enter description (up to 1,000 words)…">' + esc(t.note || '') + '</textarea>' +
@@ -1076,7 +1333,7 @@ input[type=number]{-moz-appearance:textfield}
           '</div>';
       }
 
-      html += '</div></div>';
+      html += '</div></div></div>';
     }
     return html;
   }
@@ -1185,6 +1442,11 @@ input[type=number]{-moz-appearance:textfield}
       }
     }
 
+    var nowObj = new Date();
+    var hh = String(nowObj.getHours()).padStart(2, '0');
+    var mm = String(nowObj.getMinutes()).padStart(2, '0');
+    var ss = String(nowObj.getSeconds()).padStart(2, '0');
+    var tzAbbr = getTimeZoneAbbr(nowObj);
     var cleanDesc = enforceWordLimit(noteEl.value, MAX_WORDS).trim();
     
     var newTx = {
@@ -1193,7 +1455,9 @@ input[type=number]{-moz-appearance:textfield}
       cents: cents,
       note: cleanDesc,
       date: dayEl.value || todayStr(),
-      ts: Date.now()
+      timeHms: hh + ':' + mm + ':' + ss,
+      tz: tzAbbr,
+      ts: nowObj.getTime()
     };
 
     if(curType === 'transfer'){
@@ -1324,20 +1588,35 @@ input[type=number]{-moz-appearance:textfield}
     render();
   });
 
-  /* Organized PDF Statement Export with Diagonal Watermark */
-  function buildPdfStatementHtml(filtered){
-    var period = getPeriodMeta();
-    var sIn = 0, sOut = 0, sTransfer = 0;
+  /* PDF Time Range Selector Controls */
+  function updatePdfRangeUI(){
+    Array.prototype.forEach.call(pdfRangeSeg.children, function(btn){
+      btn.classList.toggle('active', btn.dataset.range === pdfScope);
+    });
+    pdfCustomWrap.style.display = pdfScope === 'custom' ? 'flex' : 'none';
+    pdfAnchorWrap.style.display = (pdfScope === 'all' || pdfScope === 'custom') ? 'none' : 'flex';
+  }
+
+  pdfRangeSeg.addEventListener('click', function(e){
+    var btn = e.target.closest('button[data-range]');
+    if(!btn) return;
+    pdfScope = btn.dataset.range;
+    updatePdfRangeUI();
+  });
+
+  /* Organized PDF Statement Export with Diagonal Watermark, Timestamps & Period Total */
+  function buildPdfStatementHtml(filtered, periodMeta){
+    var sIn = 0, sOut = 0;
     for(var i=0;i<filtered.length;i++){
       var item = filtered[i];
       if(item.type === 'in') sIn += item.cents;
       else if(item.type === 'out') sOut += item.cents;
-      else if(item.type === 'transfer') sTransfer += item.cents;
     }
     var net = sIn - sOut;
     var acctBal = balances();
     var totalPocket = acctBal.account + acctBal.savings + acctBal.cash + acctBal.coins;
-    var generatedOn = new Date().toLocaleString();
+    var nowGen = new Date();
+    var generatedOn = nowGen.toLocaleString() + ' (' + getTimeZoneAbbr(nowGen) + ')';
 
     var rowsHtml = '';
     for(var j=0;j<filtered.length;j++){
@@ -1350,16 +1629,24 @@ input[type=number]{-moz-appearance:textfield}
       var acctCol = t.type === 'transfer'
         ? (safeMethod + ' → ' + cap(t.toMethod || 'savings'))
         : safeMethod;
+      var timeStr = t.timeHms
+        ? (t.timeHms + (t.tz ? (' ' + t.tz) : ''))
+        : formatTimeHmsTz(t.ts, t.tz);
       var descText = (t.note || '').trim();
 
       rowsHtml += '<tr>' +
-        '<td style="white-space:nowrap;">' + esc(t.date) + '</td>' +
+        '<td style="white-space:nowrap;">' +
+          '<div><strong>' + esc(t.date) + '</strong></div>' +
+          (timeStr ? '<div style="font-size:9.5px;color:#555555;">' + esc(timeStr) + '</div>' : '') +
+        '</td>' +
         '<td><span class="pdf-type-pill ' + typeCls + '">' + typeText + '</span></td>' +
         '<td>' + esc(acctCol) + '</td>' +
         '<td class="pdf-desc-cell">' + (descText ? esc(descText) : '<span style="color:#888888;">—</span>') + '</td>' +
         '<td class="num-col" style="font-weight:700;">' + sign + fmt(t.cents) + '</td>' +
       '</tr>';
     }
+
+    var netFormatted = (net > 0 ? '+' : '') + fmt(net);
 
     return '<div class="pdf-watermark">Pocket Ledger</div>' +
       '<div class="pdf-doc">' +
@@ -1369,7 +1656,7 @@ input[type=number]{-moz-appearance:textfield}
             '<div class="pdf-sub">Official Transaction Statement</div>' +
           '</div>' +
           '<div class="pdf-meta-right">' +
-            '<div><strong>Period:</strong> ' + esc(period.label) + '</div>' +
+            '<div><strong>Period:</strong> ' + esc(periodMeta.label) + '</div>' +
             '<div><strong>Transactions:</strong> ' + filtered.length + '</div>' +
             '<div><strong>Generated:</strong> ' + esc(generatedOn) + '</div>' +
           '</div>' +
@@ -1377,7 +1664,7 @@ input[type=number]{-moz-appearance:textfield}
         '<div class="pdf-summary-grid">' +
           '<div class="pdf-sum-card"><div class="pdf-sum-lbl">Total Inflow</div><div class="pdf-sum-val">+' + fmt(sIn) + '</div></div>' +
           '<div class="pdf-sum-card"><div class="pdf-sum-lbl">Total Outflow</div><div class="pdf-sum-val">−' + fmt(sOut) + '</div></div>' +
-          '<div class="pdf-sum-card"><div class="pdf-sum-lbl">Net Flow</div><div class="pdf-sum-val">' + (net > 0 ? '+' : '') + fmt(net) + '</div></div>' +
+          '<div class="pdf-sum-card"><div class="pdf-sum-lbl">Period Total</div><div class="pdf-sum-val">' + netFormatted + '</div></div>' +
           '<div class="pdf-sum-card"><div class="pdf-sum-lbl">Total in Pocket</div><div class="pdf-sum-val">' + fmt(totalPocket) + '</div></div>' +
         '</div>' +
         '<div class="pdf-acct-bar">' +
@@ -1389,14 +1676,20 @@ input[type=number]{-moz-appearance:textfield}
         '<table class="pdf-table">' +
           '<thead>' +
             '<tr>' +
-              '<th style="width:14%;">Date</th>' +
-              '<th style="width:13%;">Type</th>' +
-              '<th style="width:18%;">Account</th>' +
-              '<th style="width:39%;">Description</th>' +
+              '<th style="width:18%;">Date &amp; Time</th>' +
+              '<th style="width:12%;">Type</th>' +
+              '<th style="width:17%;">Account</th>' +
+              '<th style="width:37%;">Description</th>' +
               '<th class="num-col" style="width:16%;">Amount</th>' +
             '</tr>' +
           '</thead>' +
-          '<tbody>' + rowsHtml + '</tbody>' +
+          '<tbody>' +
+            rowsHtml +
+            '<tr class="pdf-period-total-row">' +
+              '<td colspan="4">Total Amount for Selected Period (' + esc(periodMeta.label) + ')</td>' +
+              '<td class="num-col">' + netFormatted + '</td>' +
+            '</tr>' +
+          '</tbody>' +
         '</table>' +
         '<div class="pdf-foot">' +
           '<span>Pocket Ledger — Personal Financial Record</span>' +
@@ -1405,22 +1698,45 @@ input[type=number]{-moz-appearance:textfield}
       '</div>';
   }
 
-  $('exportBtnPdf').addEventListener('click', function(){
-    var filtered = getFilteredTxs();
-    if(!filtered.length){
-      alert("No transactions in the current Transactions filter to export.");
-      return;
-    }
-    var pdfRoot = $('pdfPrintRoot');
-    pdfRoot.innerHTML = buildPdfStatementHtml(filtered);
+  function openPdfModal(htmlStr){
+    pdfPrintRoot.innerHTML = htmlStr;
+    pdfModalBackdrop.classList.add('open');
+    var scrollBox = $('pdfPreviewScroll');
+    if(scrollBox) scrollBox.scrollTop = 0;
+  }
+
+  function closePdfModal(){
+    pdfModalBackdrop.classList.remove('open');
+  }
+
+  function triggerSafePrint(){
     var prevTitle = document.title;
     document.title = 'Pocket-Ledger-Statement-' + todayStr();
-    setTimeout(function(){
+    try{
       window.print();
-      setTimeout(function(){
-        document.title = prevTitle;
-      }, 500);
-    }, 60);
+    }catch(err){
+      alert('Use your browser Share or Print menu to save this statement as a PDF.');
+    }
+    setTimeout(function(){
+      document.title = prevTitle;
+    }, 600);
+  }
+
+  $('exportBtnPdf').addEventListener('click', function(){
+    var meta = evaluateRange(pdfScope, pdfAnchorDate.value, pdfStartDate.value, pdfEndDate.value);
+    var filtered = filterTxsByRange(pdfScope, pdfAnchorDate.value, pdfStartDate.value, pdfEndDate.value);
+    if(!filtered.length){
+      alert("No transactions found for " + meta.label + ".");
+      return;
+    }
+    var statementHtml = buildPdfStatementHtml(filtered, meta);
+    openPdfModal(statementHtml);
+  });
+
+  $('pdfTriggerPrint').addEventListener('click', triggerSafePrint);
+  $('pdfCloseModal').addEventListener('click', closePdfModal);
+  pdfModalBackdrop.addEventListener('click', function(e){
+    if(e.target === pdfModalBackdrop) closePdfModal();
   });
 
   $('exportBtn').addEventListener('click', function(){
@@ -1565,7 +1881,7 @@ input[type=number]{-moz-appearance:textfield}
             if(confirm("Overwrite local data (" + state.txs.length + " tx) with cloud data (" + remoteState.txs.length + " tx)?")){
               state.txs = remoteState.txs;
               state.cur = remoteState.cur || state.cur || '$';
-              state.updatedAt = remoteState.updatedAt || Date.now();
+              state.updatedAt = remoteUpdated || Date.now();
               try{ localStorage.setItem(KEY, JSON.stringify(state)); }catch(e){}
               curInput.value = state.cur;
               setPendingPush(false);
@@ -1659,6 +1975,7 @@ input[type=number]{-moz-appearance:textfield}
 
   curInput.value = state.cur;
   updateMainWordCounter();
+  updatePdfRangeUI();
   render();
   updateOnlineStatus();
 })();
